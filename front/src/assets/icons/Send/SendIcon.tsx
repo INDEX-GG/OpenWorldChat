@@ -1,0 +1,29 @@
+import React from "react";
+
+const SendIcon = () => {
+  return (
+    <svg
+      width="39"
+      height="39"
+      viewBox="0 0 39 39"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M19.9038 36.5995C29.5689 36.5995 37.4038 28.7645 37.4038 19.0995C37.4038 9.43451 29.5689 1.59949 19.9038 1.59949C10.2388 1.59949 2.40381 9.43451 2.40381 19.0995C2.40381 28.7645 10.2388 36.5995 19.9038 36.5995Z"
+        stroke="#60A1C6"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M16.0151 28.8217L25.7374 19.0995L16.0151 9.37726"
+        stroke="#60A1C6"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+export default React.memo(SendIcon);
