@@ -1,11 +1,13 @@
 import React from "react";
-import { useAuthStore } from "hooks/store/useAuthStore";
+// import { useAuthStore } from "hooks/store/useAuthStore";
 import { io } from "socket.io-client";
 
+const socket = io("http://localhost:8000/");
+
 const SocketInit = () => {
-  const { isAuth } = useAuthStore();
+  // const { isAuth } = useAuthStore();
   // if (!isAuth) return null;/**/
-  const socket = io("http://localhost:8000/");
+  console.log(123);
 
   return null;
 };

@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "concurrently \"cd front && npm run start\" \"cd server && npm run start\""
+    "start": "concurrently \"cd server && npm run start\" \"cd front && npm run start\""
   },
   "dependencies": {
     "concurrently": "^7.5.0"
