@@ -1,4 +1,4 @@
-// import { IUserModel } from "lib/models/IUserModel";
+// import { IUserModel } from "lib/modules/IUserModel";
 
 // export interface IRoomModel {
 //   name: string;

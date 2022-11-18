@@ -9,7 +9,7 @@ const RoutesLayout = () => {
   if (isAuth === null) {
     return null;
   }
-  const router = createBrowserRouter(!isAuth ? authRoutes : notAuthRoutes);
+  const router = createBrowserRouter(isAuth ? authRoutes : notAuthRoutes);
 
   return <RouterProvider router={router} />;
 };

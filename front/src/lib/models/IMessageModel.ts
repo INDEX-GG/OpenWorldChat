@@ -1,5 +1,5 @@
-// import { IUserModel } from "lib/models/IUserModel";
-// import { IRoomModel } from "lib/models/IRoomModel";
+// import { IUserModel } from "lib/modules/IUserModel";
+// import { IRoomModel } from "lib/modules/IRoomModel";
 //
 // export interface IMessageModel {
 //   user: IUserModel;
