@@ -5,15 +5,13 @@ import ChatLoading from "components/Chat/ChatLoading/ChatLoading";
 import ChatError from "components/Chat/ChatError/ChatError";
 
 const Chat = () => {
-  const { room } = useChatStore();
+  const { isLoading, hasError } = useChatStore();
 
   return (
     <>
-      {room?.isLoading && <ChatLoading />}
-      {room?.hasError && (
-        <ChatError error={room?.hasError || "Ошибка подключения к комнате"} />
-      )}
-      {!room?.isLoading && !room?.hasError && <ChatContent />}
+      {isLoading && <ChatLoading />}
+      {hasError && <ChatError error={hasError} />}
+      {!isLoading && !hasError && <ChatContent />}
     </>
   );
 };
