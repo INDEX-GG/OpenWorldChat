@@ -9,9 +9,10 @@ export const useRoomIdPage = () => {
   const { roomId } = useParams();
   const dispatch = useAppDispatch();
 
-  const socket = io("http://localhost:7000/", {
+  const socket = io("http://localhost:4000/", {
     query: {
       roomId,
+      role: "admin",
       authToken: "123",
     },
   });

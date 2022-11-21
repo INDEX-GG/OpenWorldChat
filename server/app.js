@@ -4,8 +4,9 @@ const express = require("express");
 const http = require("http");
 
 const PORT = process.env.PORT;
-const sequelize = require("./modules/db");
-// const models = require("./models/models")
+const sequelizeChat = require("./modules/db");
+const sequelizeMain = require("./modules/db_main");
+const {socketConnection} = require("./services/socketServices");
 
 const app = express();
 
@@ -17,22 +18,14 @@ app.get("/", (req, res) => {
 });
 
 //! user connect
-io.on("connection", (socket) => {
-  //!  body
-  const { roomId, authToken } = socket.handshake.query;
-  if (!roomId || !authToken) {
-    console.log("disconnect");
-    socket.disconnect();
-  }
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-  });
-});
+io.on("connection", socketConnection(io));
 
 const start = async () => {
   try {
-    await sequelize.authenticate();
-    await sequelize.sync();
+    await sequelizeChat.authenticate();
+    await sequelizeMain.authenticate();
+    await sequelizeChat.sync();
+    await sequelizeMain.sync();
     server.listen(PORT, () => {
       console.log(`listening on *:${PORT}`);
     });
