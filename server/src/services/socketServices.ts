@@ -1,4 +1,5 @@
 import {Server, Socket} from "socket.io";
+import {IMessageModel} from "../models/IMessageModel";
 
 const {checkUserAuth} = require("./services");
 const socketConnection = (io: Server) => {
@@ -26,8 +27,8 @@ const socketConnection = (io: Server) => {
             }
 
             //! send message
-            socket.on("send message", (message: string) => {
-                console.log(message);
+            socket.on("send message", (data: Omit<IMessageModel, "date">) => {
+                console.log(data);
             })
 
             //! disconnect room
