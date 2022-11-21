@@ -1,9 +1,9 @@
 // import { IUserModel } from "lib/models/IUserModel";
-// import { IRoomModel } from "lib/models/IRoomModel";
+// import { IRoomModel.ts } from "lib/models/IRoomModel.ts";
 //
 // export interface IMessageModel {
 //   user: IUserModel;
-//   room: IRoomModel;
+//   room: IRoomModel.ts;
 //   created_at: string;
 //   text: string;
 // }

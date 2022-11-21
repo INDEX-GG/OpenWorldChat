@@ -1,5 +1,5 @@
-const sequelize = require("../modules/db_main");
-const {DataTypes} = require("sequelize");
+import sequelize from "../modules/dbMain";
+import { DataTypes }  from "sequelize";
 
 const UserTokensAll = sequelize.define("token_blacklist_outstandingtoken", {
     id: {type: DataTypes.BIGINT, primaryKey: true},
@@ -16,7 +16,7 @@ const UserTokensBlackList = sequelize.define("token_blacklist_blacklistedtoken",
 }, {tableName: "token_blacklist_blacklistedtoken", timestamps: false})
 
 
-module.exports = {
+export{
     UserTokensAll,
     UserTokensBlackList,
 }

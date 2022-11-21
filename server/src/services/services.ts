@@ -1,6 +1,6 @@
-const {UserTokensAll, UserTokensBlackList} = require("../models/models_main");
+const {UserTokensAll, UserTokensBlackList} = require("../db/mainApp");
 
-const checkUserAuth = async (role, roomId, authToken) => {
+const checkUserAuth = async (role: string, roomId: number, authToken: string) => {
     try {
         //! find authToken in all refresh tokens
         const findTokenAll = await UserTokensAll.findOne({where: {token: authToken}});

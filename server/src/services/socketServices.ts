@@ -1,6 +1,8 @@
+import {Server, Socket} from "socket.io";
+
 const {checkUserAuth} = require("./services");
-const socketConnection = (io) => {
-    return async (socket) => {
+const socketConnection = (io: Server) => {
+    return async (socket: Socket) => {
         try {
             //! query body
             const { roomId, authToken, role } = socket.handshake.query;
@@ -23,8 +25,9 @@ const socketConnection = (io) => {
                 io.emit("user verify")
             }
 
-            socket.on("send message", (socket) => {
-                console.log(socket);
+            //! send message
+            socket.on("send message", (message: string) => {
+                console.log(message);
             })
 
             //! disconnect room
@@ -37,6 +40,6 @@ const socketConnection = (io) => {
     }
 }
 
-module.exports = {
+export {
     socketConnection,
 }

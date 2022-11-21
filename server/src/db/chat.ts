@@ -1,5 +1,5 @@
-const sequelize = require("../modules/db");
-const {DataTypes} = require("sequelize");
+import sequelize from "../modules/db";
+import { DataTypes }  from "sequelize";
 
 const Admin = sequelize.define("admin", {
     id: {type: DataTypes.INTEGER, primaryKey: true},
@@ -12,6 +12,6 @@ const Rooms = sequelize.define("rooms", {
     userInfo: {type: DataTypes.JSON},
 }, {tableName: "rooms"})
 
-module.exports = {
+export {
     Admin, Rooms
 }
