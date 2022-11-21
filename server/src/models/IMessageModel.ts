@@ -1,7 +1,7 @@
 import {IUserModel} from "./IUserModel";
 
 export interface IMessageModel {
-  date: string;
   text: string;
+  createdAt: string;
   userInfo: IUserModel,
 }
