@@ -1,4 +1,5 @@
-const {UserTokensAll, UserTokensBlackList} = require("../db/mainApp");
+import {UserTokensAll, UserTokensBlackList} from "../db/mainApp";
+import * as bcrypt from "bcrypt";
 
 const checkUserAuth = async (role: string, roomId: number, authToken: string) => {
     try {
@@ -18,6 +19,12 @@ const checkUserAuth = async (role: string, roomId: number, authToken: string) =>
     }
 }
 
-module.exports = {
+const hashPassword = async (password: string) => {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
+}
+
+export {
     checkUserAuth,
+    hashPassword,
 }

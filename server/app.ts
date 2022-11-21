@@ -1,10 +1,10 @@
 import * as http from "http";
 import * as express from "express";
 import { Server } from "socket.io";
-import { PORT } from "./src/constants/constants";
 import SequelizeChat from "./src/modules/db";
 import SequelizeMain from "./src/modules/dbMain";
-const {socketConnection} = require("./src/services/socketServices");
+import { PORT } from "./src/constants/constants";
+import { socketConnection } from "./src/services/socketServices";
 
 const app = express();
 const server = http.createServer(app);
@@ -29,6 +29,8 @@ const start = async () => {
 
     await SequelizeChat.sync();
     await SequelizeMain.sync();
+
+    // await createAdmin()
 
     server.listen(PORT, () => {
       console.log(`listening on *:${PORT}`);

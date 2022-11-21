@@ -9,6 +9,8 @@ declare global {
       DB_HOST: string;
       DB_PORT: string;
       PORT: string;
+      ADMIN_EMAIL: string;
+      ADMIN_PASSWORD: string;
     }
   }
 }
