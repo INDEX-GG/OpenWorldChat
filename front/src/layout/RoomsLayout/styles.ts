@@ -17,7 +17,7 @@ const AsideSC = styled("aside")<Pick<IChatLayoutProps, "isOverflowScroll">>`
   max-height: ${({ isOverflowScroll }) =>
     isOverflowScroll ? "100vh" : "none"};
   background-color: #eef4f7;
-  overflow: ${({ isOverflowScroll }) =>
+  overflow-y: ${({ isOverflowScroll }) =>
     isOverflowScroll ? "scroll" : "hidden"};
 `;
 
