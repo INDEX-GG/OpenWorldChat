@@ -1,8 +1,11 @@
 import {Server, Socket} from "socket.io";
 import {IMessageModel} from "../models/IMessageModel";
+import { createRoom } from "../models/ModelsChat";
+import {redisClientType} from "../../app";
+import {JSON} from "sequelize";
 
 const {checkUserAuth} = require("./services");
-const socketConnection = (io: Server) => {
+const socketConnection = (io: Server, client: any) => {
     return async (socket: Socket) => {
         try {
             //! query body
@@ -27,7 +30,7 @@ const socketConnection = (io: Server) => {
             }
 
             //! send message
-            socket.on("send message", (data: Omit<IMessageModel, "date">) => {
+            socket.on("send message", async (data: IMessageModel) => {
                 console.log(data);
             })
 

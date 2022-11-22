@@ -1,11 +1,11 @@
-import {UserTokensAll, UserTokensBlackList} from "../db/mainApp";
+import {UserTokensAll, UserTokensBlackList} from "../models/ModelsMain";
 import * as bcrypt from "bcrypt";
 
 const checkUserAuth = async (role: string, roomId: number, authToken: string) => {
     try {
         //! find authToken in all refresh tokens
         const findTokenAll = await UserTokensAll.findOne({where: {token: authToken}});
-        if (typeof findTokenAll.dataValues === "object") {
+        if (typeof findTokenAll?.dataValues === "object") {
             //! get token id
             const {dataValues: {id: tokenId}} = findTokenAll;
             //! find token in blacklist

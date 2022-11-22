@@ -1,11 +1,11 @@
 import * as express from "express";
 import * as http from "http";
-import * as redis from "redis";
 import { Server } from "socket.io";
-import SequelizeChat from "./src/modules/db";
-import SequelizeMain from "./src/modules/dbMain";
+import SequelizeChat from "./src/db/dbChat";
+import SequelizeMain from "./src/db/dbMain";
 import { PORT } from "./src/constants/constants";
 import { socketConnection } from "./src/services/socketServices";
+import { createClient } from "redis";
 
 //? app
 const app = express();
@@ -21,7 +21,8 @@ const io = new Server(server, {
 })
 
 //? redis
-const client = redis.createClient();
+const client = createClient();
+export type redisClientType = typeof client;
 
 //! admin login
 app.get("/auth/admin/login", (req, res) => {
@@ -29,7 +30,7 @@ app.get("/auth/admin/login", (req, res) => {
 });
 
 //! socket connect
-io.on("connection", socketConnection(io));
+io.on("connection", socketConnection(io, client));
 
 //! start expressApp
 const start = async () => {
@@ -41,6 +42,9 @@ const start = async () => {
     //? sync bd;
     await SequelizeChat.sync();
     await SequelizeMain.sync();
+
+    //? connect redis
+    await client.connect();
 
     server.listen(PORT, () => {
       console.log(`listening on *:${PORT}`);

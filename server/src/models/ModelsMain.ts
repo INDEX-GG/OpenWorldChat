@@ -1,4 +1,4 @@
-import sequelize from "../modules/dbMain";
+import sequelize from "../db/dbMain";
 import { DataTypes }  from "sequelize";
 
 const UserTokensAll = sequelize.define("token_blacklist_outstandingtoken", {
