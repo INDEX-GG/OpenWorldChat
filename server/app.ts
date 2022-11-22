@@ -22,7 +22,7 @@ const io = new Server(server, {
 
 //? redis
 const client = createClient();
-export type redisClientType = typeof client;
+
 
 //! admin login
 app.get("/auth/admin/login", (req, res) => {
@@ -43,7 +43,7 @@ const start = async () => {
     await SequelizeChat.sync();
     await SequelizeMain.sync();
 
-    //? connect redis
+    // ? connect redis
     await client.connect();
 
     server.listen(PORT, () => {

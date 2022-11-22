@@ -1,45 +1,53 @@
 import {Server, Socket} from "socket.io";
 import {IMessageModel} from "../models/IMessageModel";
-import { createRoom } from "../models/ModelsChat";
-import {redisClientType} from "../../app";
-import {JSON} from "sequelize";
+import { RedisClientType } from "../types/types";
+import { getSendMessage } from "./services";
 
 const {checkUserAuth} = require("./services");
-const socketConnection = (io: Server, client: any) => {
+const socketConnection = (io: Server, client: RedisClientType) => {
     return async (socket: Socket) => {
+        //? handle error emit
+        const errorEmit = (msg: string) => {
+            io.emit("connect error", {msg})
+            socket.disconnect();
+        }
+
+        //! MAIN LOGIC
         try {
-            //! query body
+            //? query body
             const { roomId, authToken, role } = socket.handshake.query;
+            console.log(`${role} connect`)
+
 
             //! forced disconnect
             if (!roomId || !authToken || !role) {
-                io.emit("connect error", {msg: "Произошла непредвиденная ошибка, пожалуйста попробуйте позже"})
-                socket.disconnect();
+                errorEmit("Произошла непредвиденная ошибка, пожалуйста попробуйте позже")
                 return;
             }
 
             //! user check
             if (role === "user") {
                 const isVerify = await checkUserAuth(role, roomId, authToken);
+
+                //? user verify
                 if (!isVerify) {
-                    io.emit("connect error", {msg: "Ошибка аутентификации пользователя, пожайлуста перезайдите в аккаунт"})
-                    socket.disconnect()
+                    errorEmit("Ошибка аутентификации пользователя, пожайлуста перезайдите в аккаунт")
                     return;
                 }
+
+                //? user not verify
                 io.emit("user verify")
             }
 
             //! send message
-            socket.on("send message", async (data: IMessageModel) => {
-                console.log(data);
-            })
+            socket.on("send message", getSendMessage(io, client))
 
             //! disconnect room
             socket.on("disconnect", () => {
                 console.log(`${role} disconnected`);
             });
         } catch (e) {
-            io.emit("connect error", {msg: "Произошла непредвиденная ошибка, пожалуйста попробуйте позже"})
+            errorEmit("Произошла непредвиденная ошибка, пожалуйста попробуйте позже");
         }
     }
 }

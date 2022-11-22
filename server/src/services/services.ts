@@ -1,5 +1,7 @@
+import { Server } from 'socket.io';
 import {UserTokensAll, UserTokensBlackList} from "../models/ModelsMain";
-import * as bcrypt from "bcrypt";
+import { IMessageModel } from "../models/IMessageModel";
+import { RedisClientType } from "../types/types";
 
 const checkUserAuth = async (role: string, roomId: number, authToken: string) => {
     try {
@@ -19,12 +21,26 @@ const checkUserAuth = async (role: string, roomId: number, authToken: string) =>
     }
 }
 
-const hashPassword = async (password: string) => {
-    const salt = await bcrypt.genSalt(10);
-    return await bcrypt.hash(password, salt);
+//? event send message
+const getSendMessage = (io: Server, client: RedisClientType) => {
+    return async (data: IMessageModel,) => {
+        //? dynamic room key
+        const roomKey = `room${data.userInfo.id}`;
+        //? dynamic room data
+        const roomData = JSON.stringify({roomId: data.userInfo.id,...data});
+        const messageId = await client.RPUSH(roomKey, roomData);
+        //? check save in redis
+        if (typeof messageId === "number") {
+            //? get last message
+            const chatData = await client.LRANGE(roomKey, -1, -1);
+            if (Array.isArray(chatData)) {
+                io.emit("success message", JSON.parse(chatData[0]));
+            }
+        }
+    }
 }
 
 export {
     checkUserAuth,
-    hashPassword,
+    getSendMessage,
 }

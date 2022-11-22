@@ -1,6 +1,6 @@
 import {IUserModel} from "./IUserModel";
 
 export interface IMessageModel {
-  text: string;
+  message: string;
   userInfo: IUserModel,
 }
