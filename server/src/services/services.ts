@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import {UserTokensAll, UserTokensBlackList} from "../models/ModelsMain";
 import { IMessageModel } from "../models/IMessageModel";
 import { RedisClientType } from "../types/types";
+import { User, Room, } from "../models/ModelsChat";
 
 const checkUserAuth = async (role: string, roomId: number, authToken: string) => {
     try {
@@ -21,21 +22,43 @@ const checkUserAuth = async (role: string, roomId: number, authToken: string) =>
     }
 }
 
+const saveMessagePostgress = async (data: IMessageModel) => {
+    try {
+        console.log(data);
+    } catch(e) {
+        console.log('123');
+    }
+};
+
 //? event send message
 const getSendMessage = (io: Server, client: RedisClientType) => {
-    return async (data: IMessageModel,) => {
-        //? dynamic room key
-        const roomKey = `room${data.userInfo.id}`;
-        //? dynamic room data
-        const roomData = JSON.stringify({roomId: data.userInfo.id,...data});
-        const messageId = await client.RPUSH(roomKey, roomData);
-        //? check save in redis
-        if (typeof messageId === "number") {
-            //? get last message
-            const chatData = await client.LRANGE(roomKey, -1, -1);
-            if (Array.isArray(chatData)) {
-                io.emit("success message", JSON.parse(chatData[0]));
+    return async (data: Omit<IMessageModel, "roomId">) => {
+        const getRoomData = (): IMessageModel => ({roomId: data.userInfo.id, ...data})
+
+        try {
+            if (data.userInfo.id) {
+                console.log("send");
             }
+            // //? dynamic room key
+            // const roomKey = `room${data.userInfo.id}`;
+            // //? dynamic room data
+            // const roomData = JSON.stringify(getRoomData());
+            // //? messageId
+            // const messageId = await client.RPUSH(roomKey, roomData);
+            // //? check save in redis
+            // if (typeof messageId === "number") {
+            //     //? get last message
+            //     const chatData = await client.LRANGE(roomKey, -1, -1);
+            //     if (Array.isArray(chatData)) {
+            //         const parseChatData = JSON.parse(chatData[0]) as IMessageModel;
+            //         io.emit("success message", parseChatData);
+            //         // client.EXPIRE(roomKey, 15);
+            //     }
+            // }
+        } catch(e) {
+            //? not save redis 
+            // const roomData = getRoomData();
+            // saveMessagePostgress(roomData);
         }
     }
 }

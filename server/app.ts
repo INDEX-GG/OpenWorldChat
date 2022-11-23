@@ -20,9 +20,8 @@ const io = new Server(server, {
   }
 })
 
-//? redis
+// ? redis
 const client = createClient();
-
 
 //! admin login
 app.get("/auth/admin/login", (req, res) => {
