@@ -1,7 +1,8 @@
 import { Server } from 'socket.io';
 import {UserTokensAll, UserTokensBlackList} from "../models/ModelsMain";
-import { IMessageModel } from "../models/IMessageModel";
+import { IMessageModel } from "../types/IMessageModel";
 import { User, Room, Message } from "../models/ModelsChat";
+import { RoomConnectType } from '../types/types';
 
 const checkUserAuth = async (role: string, roomId: number, authToken: string) => {
     try {
@@ -21,7 +22,7 @@ const checkUserAuth = async (role: string, roomId: number, authToken: string) =>
     }
 }
 
-const createRoom = async (io: Server, data: IMessageModel, tryCount = 0) => {
+const createRoom = async (io: Server, connectData: RoomConnectType, data: IMessageModel, tryCount = 0) => {
     try {
         const { userInfo } = data;
         //! create user
@@ -37,7 +38,9 @@ const createRoom = async (io: Server, data: IMessageModel, tryCount = 0) => {
         await user.save();
         //! create room
         const room = await Room.create({
-            id: userInfo.id,
+            id: connectData.roomId,
+            servicesId: connectData.servicesId,
+            servicesName: connectData.services_name,
             userId: userInfo.id,
             adminId: 1,
         });
@@ -48,7 +51,7 @@ const createRoom = async (io: Server, data: IMessageModel, tryCount = 0) => {
         tryCount += 1;
         //! try create
         if (tryCount > 0 && tryCount  <= 5) {
-            createRoom(io, data, tryCount);
+            createRoom(io, connectData, data, tryCount);
         } else {
             //! error create room
             io.emit("error", "Ошибка создания комнаты, пожайлуста перезайдите в аккаунт");
@@ -64,11 +67,14 @@ const createMessage = async (io: Server, data: IMessageModel) => {
             senderId: data.userInfo.id,
             roomId: data.userInfo.id,
         })
-        console.log("message create");
         await message.save();
-        io.emit("message save", data);
+
+        delete message.dataValues.updatedAt;
+        //! emit frontend
+        io.emit("message save", message.dataValues);
         return true;
     } catch(e) {
+        console.log(e);
         io.emit("error", "Ошибка отправки сообщения, пожайлуста перезайдите в аккаунт");
         return false;
     }
@@ -76,10 +82,10 @@ const createMessage = async (io: Server, data: IMessageModel) => {
 
 
 //? event send message
-const getSendMessage = (io: Server, isCreateRoom: boolean) => {
+const getSendMessage = (io: Server, connectData: RoomConnectType, isCreateRoom: boolean) => {
     return async (data: Omit<IMessageModel, "roomId">) => {
         //! get room data
-        const getRoomData = (): IMessageModel => ({roomId: data.userInfo.id, ...data})
+        const getRoomData = (): IMessageModel => ({roomId: connectData.roomId, ...data})
 
         //! Main logic
         try {
@@ -88,7 +94,7 @@ const getSendMessage = (io: Server, isCreateRoom: boolean) => {
                 if (isCreateRoom) {
                     //! create new room;
                     const roomData = getRoomData();
-                    createRoom(io, roomData).then(() => {
+                    createRoom(io, connectData, roomData).then(() => {
                         isCreateRoom = false,
                         createMessage(io, roomData);
                     })

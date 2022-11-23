@@ -17,11 +17,13 @@ const Admin = sequelize.define("admin", {
 
 const Room = sequelize.define("room", {
     id: {type: DataTypes.INTEGER, primaryKey: true},
+    servicesId: {type: DataTypes.INTEGER},
+    servicesName: {type: DataTypes.STRING},
 }, {tableName: "room"})
 
 const Message = sequelize.define("message", {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    text: {type: DataTypes.STRING},
+    text: {type: DataTypes.STRING(550)},
     senderId: {type: DataTypes.INTEGER},
 }, {tableName: "message"})
 

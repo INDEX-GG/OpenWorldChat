@@ -1,6 +1,7 @@
 import {Server, Socket} from "socket.io";
 import { getSendMessage } from "./services";
 import { Room } from "../models/ModelsChat";
+import { RoomConnectType } from "../types/types";
 
 const {checkUserAuth} = require("./services");
 const socketConnection = (io: Server) => {
@@ -17,7 +18,8 @@ const socketConnection = (io: Server) => {
         //! MAIN LOGIC
         try {
             //? query body
-            const { roomId, authToken, role } = socket.handshake.query;
+            const data = socket.handshake.query;
+            const {roomId, authToken, role, servicesId, services_name} = data as unknown as RoomConnectType;
             console.log(`${role} connect`)
 
 
@@ -32,14 +34,18 @@ const socketConnection = (io: Server) => {
 
                 //! user check
                 if (role === "user") {
+                    //! force leave
+                    if (!servicesId || !services_name) {
+                        errorEmit("Произошла непредвиденная ошибка, пожалуйста попробуйте позже");
+                        return;
+                    }
+                    //? continue
                     const isVerify = await checkUserAuth(role, roomId, authToken);
-
                     //? user not verify
                     if (!isVerify) {
                         errorEmit("Ошибка аутентификации пользователя, пожайлуста перезайдите в аккаунт")
                         return;
                     }
-
                     //? user verify
                     io.emit("user verify")
                 }
@@ -59,7 +65,7 @@ const socketConnection = (io: Server) => {
                 }
 
                 //! send message
-                socket.on("send message", getSendMessage(io, isCreateRoom))
+                socket.on("send message", getSendMessage(io, data as any, isCreateRoom))
             } else {
                 //! not correct role
                 errorEmit("Ошибка верификации пользователя ")
