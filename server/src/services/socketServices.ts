@@ -1,13 +1,13 @@
 import {Server, Socket} from "socket.io";
-import {IMessageModel} from "../models/IMessageModel";
-import { RedisClientType } from "../types/types";
 import { getSendMessage } from "./services";
 import { Room } from "../models/ModelsChat";
-import { userInfo } from "os";
 
 const {checkUserAuth} = require("./services");
-const socketConnection = (io: Server, client: RedisClientType) => {
+const socketConnection = (io: Server) => {
     return async (socket: Socket) => {
+        //? is create room;
+        let isCreateRoom = true;
+
         //? handle error emit
         const errorEmit = (msg: string) => {
             io.emit("error", {msg})
@@ -29,31 +29,37 @@ const socketConnection = (io: Server, client: RedisClientType) => {
         
             //! check role
             if (role === "admin" || role === "user") {
-                //? user check
+
+                //! user check
                 if (role === "user") {
                     const isVerify = await checkUserAuth(role, roomId, authToken);
 
-                    //? user verify
+                    //? user not verify
                     if (!isVerify) {
                         errorEmit("Ошибка аутентификации пользователя, пожайлуста перезайдите в аккаунт")
                         return;
                     }
 
-                    //? user not verify
+                    //? user verify
                     io.emit("user verify")
                 }
 
-                //? admin check
+                //! admin check
                 if (role === "admin") {
                     console.log("admin")
+                    return;
                 }
 
                 //! find room
-                const room = await Room.findOne({where: {id: roomId}});
-                console.log(room);
+                try {
+                    const room = await Room.findOne({where: {id: roomId}});
+                    isCreateRoom = !room;
+                } catch(e) {
+                    isCreateRoom = true;
+                }
 
                 //! send message
-                socket.on("send message", getSendMessage(io, client))
+                socket.on("send message", getSendMessage(io, isCreateRoom))
             } else {
                 //! not correct role
                 errorEmit("Ошибка верификации пользователя ")

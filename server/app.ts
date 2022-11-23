@@ -5,7 +5,6 @@ import SequelizeChat from "./src/db/dbChat";
 import SequelizeMain from "./src/db/dbMain";
 import { PORT } from "./src/constants/constants";
 import { socketConnection } from "./src/services/socketServices";
-import { createClient } from "redis";
 
 //? app
 const app = express();
@@ -20,16 +19,13 @@ const io = new Server(server, {
   }
 })
 
-// ? redis
-const client = createClient();
-
 //! admin login
 app.get("/auth/admin/login", (req, res) => {
   res.send("<h1>Admin login</h1>");
 });
 
 //! socket connect
-io.on("connection", socketConnection(io, client));
+io.on("connection", socketConnection(io));
 
 //! start expressApp
 const start = async () => {
@@ -41,9 +37,6 @@ const start = async () => {
     //? sync bd;
     await SequelizeChat.sync();
     await SequelizeMain.sync();
-
-    // ? connect redis
-    await client.connect();
 
     server.listen(PORT, () => {
       console.log(`listening on *:${PORT}`);

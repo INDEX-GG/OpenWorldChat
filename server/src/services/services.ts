@@ -1,8 +1,7 @@
 import { Server } from 'socket.io';
 import {UserTokensAll, UserTokensBlackList} from "../models/ModelsMain";
 import { IMessageModel } from "../models/IMessageModel";
-import { RedisClientType } from "../types/types";
-import { User, Room, } from "../models/ModelsChat";
+import { User, Room, Message } from "../models/ModelsChat";
 
 const checkUserAuth = async (role: string, roomId: number, authToken: string) => {
     try {
@@ -22,43 +21,85 @@ const checkUserAuth = async (role: string, roomId: number, authToken: string) =>
     }
 }
 
-const saveMessagePostgress = async (data: IMessageModel) => {
+const createRoom = async (io: Server, data: IMessageModel, tryCount = 0) => {
     try {
-        console.log(data);
+        const { userInfo } = data;
+        //! create user
+        const user = await User.create({
+            id: userInfo.id,
+            name: userInfo.name || "",
+            lastname: userInfo.lastname || "",
+            patronymic: userInfo.patronymic || "",
+            email: userInfo.email,
+            phone: userInfo.phone || "",
+        })
+        console.log("user create");
+        await user.save();
+        //! create room
+        const room = await Room.create({
+            id: userInfo.id,
+            userId: userInfo.id,
+            adminId: 1,
+        });
+        console.log("room create");
+        await room.save()
+        return true;
     } catch(e) {
-        console.log('123');
+        tryCount += 1;
+        //! try create
+        if (tryCount > 0 && tryCount  <= 5) {
+            createRoom(io, data, tryCount);
+        } else {
+            //! error create room
+            io.emit("error", "Ошибка создания комнаты, пожайлуста перезайдите в аккаунт");
+            return false;
+        }
     }
-};
+}
+
+const createMessage = async (io: Server, data: IMessageModel) => {
+    try {
+        const message = await Message.create({
+            text: data.message,
+            senderId: data.userInfo.id,
+            roomId: data.userInfo.id,
+        })
+        console.log("message create");
+        await message.save();
+        io.emit("message save", data);
+        return true;
+    } catch(e) {
+        io.emit("error", "Ошибка отправки сообщения, пожайлуста перезайдите в аккаунт");
+        return false;
+    }
+}
+
 
 //? event send message
-const getSendMessage = (io: Server, client: RedisClientType) => {
+const getSendMessage = (io: Server, isCreateRoom: boolean) => {
     return async (data: Omit<IMessageModel, "roomId">) => {
+        //! get room data
         const getRoomData = (): IMessageModel => ({roomId: data.userInfo.id, ...data})
 
+        //! Main logic
         try {
             if (data.userInfo.id) {
-                console.log("send");
+                //! If room not found room
+                if (isCreateRoom) {
+                    //! create new room;
+                    const roomData = getRoomData();
+                    createRoom(io, roomData).then(() => {
+                        isCreateRoom = false,
+                        createMessage(io, roomData);
+                    })
+                } else {
+                    //! create message
+                    createMessage(io, getRoomData());
+                }
             }
-            // //? dynamic room key
-            // const roomKey = `room${data.userInfo.id}`;
-            // //? dynamic room data
-            // const roomData = JSON.stringify(getRoomData());
-            // //? messageId
-            // const messageId = await client.RPUSH(roomKey, roomData);
-            // //? check save in redis
-            // if (typeof messageId === "number") {
-            //     //? get last message
-            //     const chatData = await client.LRANGE(roomKey, -1, -1);
-            //     if (Array.isArray(chatData)) {
-            //         const parseChatData = JSON.parse(chatData[0]) as IMessageModel;
-            //         io.emit("success message", parseChatData);
-            //         // client.EXPIRE(roomKey, 15);
-            //     }
-            // }
         } catch(e) {
-            //? not save redis 
-            // const roomData = getRoomData();
-            // saveMessagePostgress(roomData);
+            console.log(e);
+            io.emit("error", "Ошибка отправки сообщения, пожайлуста перезайдите в аккаунт")
         }
     }
 }
