@@ -10,6 +10,7 @@ export const socketConnection = (io: Server) => {
     return async (socket: Socket) => {
         //? is create room;
         let isCreateRoom = true;
+        let roomId = undefined;
 
         //? handle error emit
         const errorEmit: ErrorEmitFuncType = (msg: string) => {
@@ -61,15 +62,22 @@ export const socketConnection = (io: Server) => {
                 }
 
                 //! find all rooms
-                const room = await findRooms(io, userId, servicesId)
+                const room = await findRooms(io, userId, servicesId, errorEmit)
+
                 //! error find room in db
                 if (typeof room === "undefined") {
                     errorEmit(errorMsg.room)
                     return;
+                };
+
+                //! find room
+                if (typeof room === "number") {
+                    roomId = room;
+                    isCreateRoom = false;
                 }
 
                 //! send message
-                socket.on("send message", getSendMessage(io, errorEmit, isCreateRoom, data as any))
+                socket.on("send message", getSendMessage(io, errorEmit, isCreateRoom, data as any, roomId))
             } else {
                 //! not correct role
                 errorEmit("Ошибка верификации пользователя")

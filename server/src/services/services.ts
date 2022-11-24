@@ -23,7 +23,7 @@ export const checkUserAuth = async (authToken: string) => {
     }
 }
 
-export const findRooms = async (io: Server, userId: number, servicesId: number) => {
+export const findRooms = async (io: Server, userId: number, servicesId: number, errorEmit: ErrorEmitFuncType) => {
     try {
         //! find all room
         const userRooms = await Room.findAll({where: {userId: userId}});
@@ -43,33 +43,44 @@ export const findRooms = async (io: Server, userId: number, servicesId: number) 
                 console.log("create room");
                 return true;
             }
+            
+            if (currentRoom) {
+                //! get message in room;
+                const messages = await Message.findAll({where: {roomId: currentRoom.id}})
 
-            console.log(currentRoom);
+                if (messages) {
+                    const messageArray = messages.map(message => message.dataValues);
+                    //! event frontend message list
+                    io.emit("message list", messageArray);
+                    return currentRoom.id as number;
+                }
+            }
 
-            return false;
-
+            return undefined;
         }
-        return false;
+        return undefined;
     } catch(e) {
-        io.emit("error", errorMsg.room);
         return undefined;
     }
 }
 
-const createRoom = async (io: Server, connectData: RoomConnectType, data: IMessageModel, tryCount = 0) => {
+const createRoom = async (io: Server, connectData: RoomConnectType, data: IMessageModel, errorEmit: ErrorEmitFuncType, tryCount = 0) => {
     try {
         const { userInfo } = data;
         //! create user
-        const user = await User.create({
-            id: userInfo.id,
-            name: userInfo.name || "",
-            lastname: userInfo.lastname || "",
-            patronymic: userInfo.patronymic || "",
-            email: userInfo.email,
-            phone: userInfo.phone || "",
-        })
-        console.log("user create");
-        await user.save();
+        const findUser = await User.findOne({where: {id: userInfo.id}})
+        if (!findUser) {
+            const user = await User.create({
+                id: userInfo.id,
+                name: userInfo.name || "",
+                lastname: userInfo.lastname || "",
+                patronymic: userInfo.patronymic || "",
+                email: userInfo.email,
+                phone: userInfo.phone || "",
+            })
+            await user.save();
+            console.log("user create");
+        }
         //! create room
         const room = await Room.create({
             servicesId: connectData.servicesId,
@@ -84,10 +95,10 @@ const createRoom = async (io: Server, connectData: RoomConnectType, data: IMessa
         tryCount += 1;
         //! try create
         if (tryCount > 0 && tryCount  <= 5) {
-            createRoom(io, connectData, data, tryCount);
+            createRoom(io, connectData, data, errorEmit, tryCount);
         } else {
             //! error create room
-            io.emit("error", errorMsg.room);
+            errorEmit(errorMsg.room);
             return false;
         }
     }
@@ -96,6 +107,7 @@ const createRoom = async (io: Server, connectData: RoomConnectType, data: IMessa
 const createMessage = async (io: Server, data: IMessageModel) => {
     try {
         const message = await Message.create({
+            roomId: data.roomId,
             text: data.message,
             senderId: data.userInfo.id,
         })
@@ -113,36 +125,40 @@ const createMessage = async (io: Server, data: IMessageModel) => {
 
 
 //? event send message
-export const getSendMessage = (io: Server, errorEmit: ErrorEmitFuncType, isCreateRoom: boolean, connectData: RoomConnectType) => {
+export const getSendMessage = (
+    io: Server, 
+    errorEmit: ErrorEmitFuncType, 
+    isCreateRoom: boolean, 
+    connectData: RoomConnectType, 
+    roomId?: number 
+) => {
     return async (data: IMessageModel) => {
-        //! get room data
-        const getRoomData = (): IMessageModel => data
-        console.log("send message");
-
         //! Main logic
         try {
             if (data.userInfo.id) {
                 //! If room not found room
                 if (isCreateRoom) {
                     //! create new room;
-                    const roomData = getRoomData();
-                    createRoom(io, connectData, roomData).then((room) => {
+                    createRoom(io, connectData, data, errorEmit).then((room) => {
                         if (room) {
-                            console.log(room.dataValues.id)
                             isCreateRoom = false,
-                            createMessage(io, roomData);
-                            return;
+                            roomId = room.dataValues.id;
+                            createMessage(io, {...data, roomId: room.dataValues.id});
                         }
                     })
                 } else {
                     //! create message
-                    createMessage(io, getRoomData());
+                    if (roomId) {
+                        createMessage(io, {...data, roomId: roomId});
+                    } else {
+                        errorEmit(errorMsg.message)
+                    }
                 }
             } else {
                 throw new Error("")
             }
         } catch(e) {
-            io.emit("error", errorMsg.message)
+            errorEmit(errorMsg.message)
         }
     }
 }

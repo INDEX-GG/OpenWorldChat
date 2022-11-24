@@ -37,10 +37,3 @@ Room.belongsTo(Admin);
 
 Room.hasMany(Message);
 Message.belongsTo(Room);
-
-// export {
-//     User,
-//     Admin,
-//     Room,
-//     Message,
-// }
