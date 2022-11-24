@@ -1,17 +1,19 @@
+import { ErrorEmitFuncType } from './../types/types';
 import {Server, Socket} from "socket.io";
-import { getSendMessage } from "./services";
-import { Room } from "../models/ModelsChat";
+import { findRooms, getSendMessage } from "./services";
 import { RoomConnectType } from "../types/types";
+import { checkUserAuth } from "./services"
+import { errorMsg } from "../constants/error";
 
-const {checkUserAuth} = require("./services");
-const socketConnection = (io: Server) => {
+
+export const socketConnection = (io: Server) => {
     return async (socket: Socket) => {
         //? is create room;
         let isCreateRoom = true;
 
         //? handle error emit
-        const errorEmit = (msg: string) => {
-            io.emit("error", {msg})
+        const errorEmit: ErrorEmitFuncType = (msg: string) => {
+            io.emit("error", msg)
             socket.disconnect();
         }
 
@@ -19,13 +21,13 @@ const socketConnection = (io: Server) => {
         try {
             //? query body
             const data = socket.handshake.query;
-            const {roomId, authToken, role, servicesId, services_name} = data as unknown as RoomConnectType;
-            console.log(`${role} connect`)
+            const { userId, authToken, role, servicesId, services_name} = data as unknown as RoomConnectType;
+            console.log(`${role}: ${userId} connected to room ${servicesId}`)
 
 
             //! forced disconnect
-            if (!roomId || !authToken || !role) {
-                errorEmit("Произошла непредвиденная ошибка, пожалуйста попробуйте позже")
+            if (!userId || !authToken || !role) {
+                errorEmit(errorMsg.error)
                 return;
             }
         
@@ -34,16 +36,18 @@ const socketConnection = (io: Server) => {
 
                 //! user check
                 if (role === "user") {
-                    //! force leave
+
+                    //! check services info
                     if (!servicesId || !services_name) {
-                        errorEmit("Произошла непредвиденная ошибка, пожалуйста попробуйте позже");
+                        errorEmit(errorMsg.error);
                         return;
                     }
-                    //? continue
-                    const isVerify = await checkUserAuth(role, roomId, authToken);
-                    //? user not verify
+                    //! check verify
+                    const isVerify = await checkUserAuth(authToken);
+
+                    //! user not verify
                     if (!isVerify) {
-                        errorEmit("Ошибка аутентификации пользователя, пожайлуста перезайдите в аккаунт")
+                        errorEmit(errorMsg.auth)
                         return;
                     }
                     //? user verify
@@ -56,19 +60,19 @@ const socketConnection = (io: Server) => {
                     return;
                 }
 
-                //! find room
-                try {
-                    const room = await Room.findOne({where: {id: roomId}});
-                    isCreateRoom = !room;
-                } catch(e) {
-                    isCreateRoom = true;
+                //! find all rooms
+                const room = await findRooms(io, userId, servicesId)
+                //! error find room in db
+                if (typeof room === "undefined") {
+                    errorEmit(errorMsg.room)
+                    return;
                 }
 
                 //! send message
-                socket.on("send message", getSendMessage(io, data as any, isCreateRoom))
+                socket.on("send message", getSendMessage(io, errorEmit, isCreateRoom, data as any))
             } else {
                 //! not correct role
-                errorEmit("Ошибка верификации пользователя ")
+                errorEmit("Ошибка верификации пользователя")
             }
             
             //! disconnect room
@@ -77,11 +81,7 @@ const socketConnection = (io: Server) => {
             });
 
         } catch (e) {
-            errorEmit("Произошла непредвиденная ошибка, пожалуйста попробуйте позже");
+            errorEmit(errorMsg.error);
         }
     }
-}
-
-export {
-    socketConnection,
 }

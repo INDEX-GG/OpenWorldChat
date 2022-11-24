@@ -2,9 +2,10 @@ import { Server } from 'socket.io';
 import {UserTokensAll, UserTokensBlackList} from "../models/ModelsMain";
 import { IMessageModel } from "../types/IMessageModel";
 import { User, Room, Message } from "../models/ModelsChat";
-import { RoomConnectType } from '../types/types';
+import { ErrorEmitFuncType, RoomConnectType } from '../types/types';
+import { errorMsg } from "../constants/error";
 
-const checkUserAuth = async (role: string, roomId: number, authToken: string) => {
+export const checkUserAuth = async (authToken: string) => {
     try {
         //! find authToken in all refresh tokens
         const findTokenAll = await UserTokensAll.findOne({where: {token: authToken}});
@@ -19,6 +20,39 @@ const checkUserAuth = async (role: string, roomId: number, authToken: string) =>
         return false;
     } catch (e) {
         return false;
+    }
+}
+
+export const findRooms = async (io: Server, userId: number, servicesId: number) => {
+    try {
+        //! find all room
+        const userRooms = await Room.findAll({where: {userId: userId}});
+
+        //! correct connect to db
+        if (Array.isArray(userRooms)) {
+            //! empty rooms
+            if (userRooms.length === 0) {
+                return true;
+            }
+
+            //! find room in rooms
+            const currentRoom = userRooms.find(room => room.dataValues.servicesId == servicesId)?.dataValues
+
+            //! find room - false
+            if (!currentRoom) {
+                console.log("create room");
+                return true;
+            }
+
+            console.log(currentRoom);
+
+            return false;
+
+        }
+        return false;
+    } catch(e) {
+        io.emit("error", errorMsg.room);
+        return undefined;
     }
 }
 
@@ -38,7 +72,6 @@ const createRoom = async (io: Server, connectData: RoomConnectType, data: IMessa
         await user.save();
         //! create room
         const room = await Room.create({
-            id: connectData.roomId,
             servicesId: connectData.servicesId,
             servicesName: connectData.services_name,
             userId: userInfo.id,
@@ -46,7 +79,7 @@ const createRoom = async (io: Server, connectData: RoomConnectType, data: IMessa
         });
         console.log("room create");
         await room.save()
-        return true;
+        return room;
     } catch(e) {
         tryCount += 1;
         //! try create
@@ -54,7 +87,7 @@ const createRoom = async (io: Server, connectData: RoomConnectType, data: IMessa
             createRoom(io, connectData, data, tryCount);
         } else {
             //! error create room
-            io.emit("error", "Ошибка создания комнаты, пожайлуста перезайдите в аккаунт");
+            io.emit("error", errorMsg.room);
             return false;
         }
     }
@@ -65,7 +98,6 @@ const createMessage = async (io: Server, data: IMessageModel) => {
         const message = await Message.create({
             text: data.message,
             senderId: data.userInfo.id,
-            roomId: data.userInfo.id,
         })
         await message.save();
 
@@ -74,18 +106,18 @@ const createMessage = async (io: Server, data: IMessageModel) => {
         io.emit("message save", message.dataValues);
         return true;
     } catch(e) {
-        console.log(e);
-        io.emit("error", "Ошибка отправки сообщения, пожайлуста перезайдите в аккаунт");
+        io.emit("error", errorMsg.message);
         return false;
     }
 }
 
 
 //? event send message
-const getSendMessage = (io: Server, connectData: RoomConnectType, isCreateRoom: boolean) => {
-    return async (data: Omit<IMessageModel, "roomId">) => {
+export const getSendMessage = (io: Server, errorEmit: ErrorEmitFuncType, isCreateRoom: boolean, connectData: RoomConnectType) => {
+    return async (data: IMessageModel) => {
         //! get room data
-        const getRoomData = (): IMessageModel => ({roomId: connectData.roomId, ...data})
+        const getRoomData = (): IMessageModel => data
+        console.log("send message");
 
         //! Main logic
         try {
@@ -94,23 +126,23 @@ const getSendMessage = (io: Server, connectData: RoomConnectType, isCreateRoom: 
                 if (isCreateRoom) {
                     //! create new room;
                     const roomData = getRoomData();
-                    createRoom(io, connectData, roomData).then(() => {
-                        isCreateRoom = false,
-                        createMessage(io, roomData);
+                    createRoom(io, connectData, roomData).then((room) => {
+                        if (room) {
+                            console.log(room.dataValues.id)
+                            isCreateRoom = false,
+                            createMessage(io, roomData);
+                            return;
+                        }
                     })
                 } else {
                     //! create message
                     createMessage(io, getRoomData());
                 }
+            } else {
+                throw new Error("")
             }
         } catch(e) {
-            console.log(e);
-            io.emit("error", "Ошибка отправки сообщения, пожайлуста перезайдите в аккаунт")
+            io.emit("error", errorMsg.message)
         }
     }
-}
-
-export {
-    checkUserAuth,
-    getSendMessage,
 }

@@ -1,7 +1,7 @@
 import sequelize from "../db/dbChat";
 import { DataTypes }  from "sequelize";
 
-const User = sequelize.define("user", {
+export const User = sequelize.define("user", {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: DataTypes.STRING},
     lastname: {type: DataTypes.STRING},
@@ -10,18 +10,18 @@ const User = sequelize.define("user", {
     phone: {type: DataTypes.STRING},
 }, {tableName: "user" })
 
-const Admin = sequelize.define("admin", {
+export const Admin = sequelize.define("admin", {
     email: {type: DataTypes.STRING},
     password: {type: DataTypes.STRING},
 }, {tableName: "admin"})
 
-const Room = sequelize.define("room", {
-    id: {type: DataTypes.INTEGER, primaryKey: true},
+export const Room = sequelize.define("room", {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     servicesId: {type: DataTypes.INTEGER},
     servicesName: {type: DataTypes.STRING},
 }, {tableName: "room"})
 
-const Message = sequelize.define("message", {
+export const Message = sequelize.define("message", {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     text: {type: DataTypes.STRING(550)},
     senderId: {type: DataTypes.INTEGER},
@@ -29,7 +29,7 @@ const Message = sequelize.define("message", {
 
 
 
-User.hasOne(Room);
+User.hasMany(Room);
 Room.belongsTo(User);
 
 Admin.hasMany(Room);
@@ -38,9 +38,9 @@ Room.belongsTo(Admin);
 Room.hasMany(Message);
 Message.belongsTo(Room);
 
-export {
-    User,
-    Admin,
-    Room,
-    Message,
-}
+// export {
+//     User,
+//     Admin,
+//     Room,
+//     Message,
+// }
