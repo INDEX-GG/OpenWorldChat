@@ -23,7 +23,7 @@ export const checkUserAuth = async (authToken: string) => {
     }
 }
 
-export const findRooms = async (io: Server, userId: number, servicesId: number, errorEmit: ErrorEmitFuncType) => {
+export const findRooms = async (io: Server, userId: number, servicesId: number, roomName: string, errorEmit: ErrorEmitFuncType) => {
     try {
         //! find all room
         const userRooms = await Room.findAll({where: {userId: userId}});
@@ -51,7 +51,7 @@ export const findRooms = async (io: Server, userId: number, servicesId: number, 
                 if (messages) {
                     const messageArray = messages.map(message => message.dataValues);
                     //! event frontend message list
-                    io.emit("message list", messageArray);
+                    io.in(roomName).emit("message list", messageArray);
                     return currentRoom.id as number;
                 }
             }
@@ -64,7 +64,14 @@ export const findRooms = async (io: Server, userId: number, servicesId: number, 
     }
 }
 
-const createRoom = async (io: Server, connectData: RoomConnectType, data: IMessageModel, errorEmit: ErrorEmitFuncType, tryCount = 0) => {
+const createRoom = async (
+    io: Server, 
+    connectData: RoomConnectType, 
+    data: IMessageModel, 
+    roomName: string,
+    errorEmit: ErrorEmitFuncType, 
+    tryCount = 0
+) => {
     try {
         const { userInfo } = data;
         //! create user
@@ -95,7 +102,7 @@ const createRoom = async (io: Server, connectData: RoomConnectType, data: IMessa
         tryCount += 1;
         //! try create
         if (tryCount > 0 && tryCount  <= 5) {
-            createRoom(io, connectData, data, errorEmit, tryCount);
+            createRoom(io, connectData, data, roomName, errorEmit, tryCount);
         } else {
             //! error create room
             errorEmit(errorMsg.room);
@@ -104,7 +111,12 @@ const createRoom = async (io: Server, connectData: RoomConnectType, data: IMessa
     }
 }
 
-const createMessage = async (io: Server, data: IMessageModel) => {
+const createMessage = async (
+    io: Server, 
+    roomName: string, 
+    data: IMessageModel,
+    errorEmit: ErrorEmitFuncType,
+) => {
     try {
         const message = await Message.create({
             roomId: data.roomId,
@@ -115,10 +127,10 @@ const createMessage = async (io: Server, data: IMessageModel) => {
 
         delete message.dataValues.updatedAt;
         //! emit frontend
-        io.emit("message save", message.dataValues);
+        io.in(roomName).emit("message save", message.dataValues);
         return true;
     } catch(e) {
-        io.emit("error", errorMsg.message);
+        errorEmit(errorMsg.message);
         return false;
     }
 }
@@ -130,7 +142,8 @@ export const getSendMessage = (
     errorEmit: ErrorEmitFuncType, 
     isCreateRoom: boolean, 
     connectData: RoomConnectType, 
-    roomId?: number 
+    roomName: string,
+    roomId?: number,
 ) => {
     return async (data: IMessageModel) => {
         //! Main logic
@@ -139,17 +152,17 @@ export const getSendMessage = (
                 //! If room not found room
                 if (isCreateRoom) {
                     //! create new room;
-                    createRoom(io, connectData, data, errorEmit).then((room) => {
+                    createRoom(io, connectData, data, roomName, errorEmit).then((room) => {
                         if (room) {
                             isCreateRoom = false,
                             roomId = room.dataValues.id;
-                            createMessage(io, {...data, roomId: room.dataValues.id});
+                            createMessage(io, roomName, {...data, roomId: room.dataValues.id}, errorEmit);
                         }
                     })
                 } else {
                     //! create message
                     if (roomId) {
-                        createMessage(io, {...data, roomId: roomId});
+                        createMessage(io, roomName, {...data, roomId: roomId}, errorEmit);
                     } else {
                         errorEmit(errorMsg.message)
                     }

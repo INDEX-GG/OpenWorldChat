@@ -8,22 +8,31 @@ import { errorMsg } from "../constants/error";
 
 export const socketConnection = (io: Server) => {
     return async (socket: Socket) => {
-        //? is create room;
         let isCreateRoom = true;
         let roomId = undefined;
+        
+        //? query body
+        const data = socket.handshake.query;
+        const { userId, authToken, role, servicesId, services_name} = data as unknown as RoomConnectType;
+        const roomName = `room:userId=${userId}/servicesId=${servicesId}`;
 
         //? handle error emit
         const errorEmit: ErrorEmitFuncType = (msg: string) => {
-            io.emit("error", msg)
+            io.in(roomName).emit("error", msg)
             socket.disconnect();
         }
 
         //! MAIN LOGIC
         try {
-            //? query body
             const data = socket.handshake.query;
             const { userId, authToken, role, servicesId, services_name} = data as unknown as RoomConnectType;
+            const roomName = `room:userId=${userId}/servicesId=${servicesId}`;
             console.log(`${role}: ${userId} connected to room ${servicesId}`)
+
+
+            socket.on("create room", () => {
+                socket.join(roomName)
+            })
 
 
             //! forced disconnect
@@ -52,7 +61,7 @@ export const socketConnection = (io: Server) => {
                         return;
                     }
                     //? user verify
-                    io.emit("user verify")
+                    io.in(roomName).emit("user verify")
                 }
 
                 //! admin check
@@ -62,7 +71,7 @@ export const socketConnection = (io: Server) => {
                 }
 
                 //! find all rooms
-                const room = await findRooms(io, userId, servicesId, errorEmit)
+                const room = await findRooms(io, userId, servicesId, roomName, errorEmit)
 
                 //! error find room in db
                 if (typeof room === "undefined") {
@@ -77,7 +86,7 @@ export const socketConnection = (io: Server) => {
                 }
 
                 //! send message
-                socket.on("send message", getSendMessage(io, errorEmit, isCreateRoom, data as any, roomId))
+                socket.on("send message", getSendMessage(io, errorEmit, isCreateRoom, data as any, roomName, roomId))
             } else {
                 //! not correct role
                 errorEmit("Ошибка верификации пользователя")
