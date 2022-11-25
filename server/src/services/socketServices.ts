@@ -15,6 +15,7 @@ export const socketConnection = (io: Server) => {
         const data = socket.handshake.query;
         const { userId, authToken, role, servicesId, services_name} = data as unknown as RoomConnectType;
         const roomName = `room:userId=${userId}/servicesId=${servicesId}`;
+        console.log(`${role}: ${userId} connected to room ${servicesId}`)
 
         //? handle error emit
         const errorEmit: ErrorEmitFuncType = (msg: string) => {
@@ -24,11 +25,6 @@ export const socketConnection = (io: Server) => {
 
         //! MAIN LOGIC
         try {
-            const data = socket.handshake.query;
-            const { userId, authToken, role, servicesId, services_name} = data as unknown as RoomConnectType;
-            const roomName = `room:userId=${userId}/servicesId=${servicesId}`;
-            console.log(`${role}: ${userId} connected to room ${servicesId}`)
-
 
             socket.on("create room", () => {
                 socket.join(roomName)
@@ -62,6 +58,7 @@ export const socketConnection = (io: Server) => {
                     }
                     //? user verify
                     io.in(roomName).emit("user verify")
+                    console.log("user verify", isVerify);
                 }
 
                 //! admin check
