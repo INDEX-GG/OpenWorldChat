@@ -1,6 +1,6 @@
 // import { IUserModel } from "lib/models/IUserModel";
 
-// export interface IRoomModel {
+// export interface IRoomModel.ts {
 //   name: string;
 //   host: number;
 //   current_user: IUserModel;
