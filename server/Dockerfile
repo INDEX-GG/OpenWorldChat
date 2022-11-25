@@ -5,5 +5,4 @@ COPY package.json .
 COPY package-lock.json .
 COPY . .
 RUN npm i
-EXPOSE 5911
 CMD ["npm", "run", "start"]
