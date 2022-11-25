@@ -1,6 +1,10 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
 import { RootReducerNameSpace } from "../../rootReducer";
+import {
+  fetchAdminLogin,
+  ResponseAdminLoginDataType,
+} from "store/reducers/authSlice/asynThunk/asynThunk";
 
 interface IInitialState {
   isAuth: boolean | null;
@@ -17,6 +21,16 @@ export const authSlice = createSlice({
     changeAuth(state) {
       state.isAuth = false;
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(
+      fetchAdminLogin.fulfilled,
+      (state, action: PayloadAction<ResponseAdminLoginDataType>) => {
+        if (action.payload?.isAuth) {
+          state.isAuth = true;
+        }
+      },
+    );
   },
 });
 

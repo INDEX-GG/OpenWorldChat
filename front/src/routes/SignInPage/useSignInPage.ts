@@ -28,6 +28,7 @@ export const useSignInPage = () => {
       handleLoginUser({
         email: emailInputRef.value,
         password: passwordInputRef.value,
+        rejectCallback,
       });
     }
   };
