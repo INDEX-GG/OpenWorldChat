@@ -9,7 +9,10 @@ const RoutesLayout = () => {
   if (isAuth === null) {
     return null;
   }
-  const router = createBrowserRouter(isAuth ? authRoutes : notAuthRoutes);
+  const basename = document.querySelector("base")?.getAttribute("href") ?? "/";
+  const router = createBrowserRouter(isAuth ? authRoutes : notAuthRoutes, {
+    basename: basename || "/",
+  });
 
   return <RouterProvider router={router} />;
 };
