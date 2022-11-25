@@ -12,7 +12,7 @@ services:
     build: ./front
     container_name: altay_chat_frontend
     ports:
-      - '5911:3000'
+      - '5912:3000'
     volumes:
       - /app/node_modules
       - ./front:/app
