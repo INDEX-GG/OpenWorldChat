@@ -11,6 +11,7 @@ declare global {
       PORT: string;
       ADMIN_EMAIL: string;
       ADMIN_PASSWORD: string;
+      SECRET_KEY: string;
     }
   }
 }
