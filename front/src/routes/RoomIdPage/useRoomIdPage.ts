@@ -4,13 +4,15 @@ import { chatConnect } from "store/reducers/chatSlice/chatSlice";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { IStatusModel } from "lib/models/IStatusModel";
-import { BASE_URL } from "lib/constants/constants";
+import { BASE_URL, PATH_URL } from "lib/constants/constants";
 
 export const useRoomIdPage = () => {
   const { roomId } = useParams();
   const dispatch = useAppDispatch();
 
+  console.log(BASE_URL);
   const socket = io(BASE_URL as string, {
+    path: PATH_URL,
     query: {
       roomId,
       role: "admin",
