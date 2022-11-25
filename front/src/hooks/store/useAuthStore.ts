@@ -1,43 +1,25 @@
 import { useAppDispatch, useAppSelector } from "./useStore";
 import { changeAuth, selectAuth } from "store/reducers/authSlice/authSlice";
 import {
-  fetchTokenRefresh,
-  fetchUserAuth,
-  fetchUserLogout,
+  fetchAdminLogin,
+  RequestAdminLoginDataType,
 } from "store/reducers/authSlice/asynThunk/asynThunk";
-import {
-  RequestFetchRefresh,
-  RequestFetchUserAuth,
-  RequestFetchUserLogout,
-} from "store/reducers/authSlice/asynThunk/types";
 
 export const useAuthStore = () => {
-  const { isAuth, access, refresh } = useAppSelector(selectAuth);
+  const { isAuth } = useAppSelector(selectAuth);
   const dispatch = useAppDispatch();
 
-  const handleLoginUser = (data: RequestFetchUserAuth) => {
-    dispatch(fetchUserAuth(data));
-  };
-
-  const handleUserLogout = (data: RequestFetchUserLogout) => {
-    dispatch(fetchUserLogout(data));
-  };
-
-  const handleRefreshToken = (data: RequestFetchRefresh) => {
-    dispatch(fetchTokenRefresh(data));
-  };
-
-  const handleChangeAuth = () => {
+  const handleNotAuth = () => {
     dispatch(changeAuth());
+  };
+
+  const handleLoginUser = (data: RequestAdminLoginDataType) => {
+    dispatch(fetchAdminLogin(data));
   };
 
   return {
     isAuth,
-    access,
-    refresh,
+    handleNotAuth,
     handleLoginUser,
-    handleUserLogout,
-    handleChangeAuth,
-    handleRefreshToken,
   };
 };
