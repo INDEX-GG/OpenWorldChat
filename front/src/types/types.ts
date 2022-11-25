@@ -1,8 +1,3 @@
-export interface ITokens {
-  access: string;
-  refresh: string;
-}
-
 export type FetchRejectCallback = (error: Error) => void;
 
 export interface ICallback {

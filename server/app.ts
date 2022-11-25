@@ -1,13 +1,24 @@
+import { Admin } from './src/models/ModelsChat';
 import * as express from "express";
 import * as http from "http";
+import * as cors from "cors"
 import { Server } from "socket.io";
 import SequelizeChat from "./src/db/dbChat";
 import SequelizeMain from "./src/db/dbMain";
 import { PORT } from "./src/constants/constants";
 import { socketConnection } from "./src/services/socketServices";
+import {apiAdminAuth} from './src/api/api';
 
 //? app
-const app = express();
+export const app = express();
+
+app.use(cors({
+  origin: "*",
+  allowedHeaders: "*",
+}))
+app.use(express.urlencoded())
+app.use(express.json())
+
 
 //? server
 const server = http.createServer(app);
@@ -20,9 +31,7 @@ const io = new Server(server, {
 })
 
 //! admin login
-app.get("/auth/admin/login", (req, res) => {
-  res.send("<h1>Admin login</h1>");
-});
+app.post("/login", apiAdminAuth);
 
 //! socket connect
 io.on("connection", socketConnection(io));
