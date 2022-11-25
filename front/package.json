@@ -36,7 +36,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build-localhost": "PUBLIC_URL=/openworld-chat-f react-scripts build"
+    "build-localhost": "PUBLIC_URL=https://testguru.ru/openworld-chat-f react-scripts build"
   },
   "eslintConfig": {
     "extends": [
