@@ -11,5 +11,6 @@ export const PORT = process.env.PORT;
 export const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 export const SECRET_KEY = process.env.SECRET_KEY;
+export const SOCKET_ADMIN_ALL_ROOMS = "SOCKET_ADMIN_ALL_ROOMS" 
 
 

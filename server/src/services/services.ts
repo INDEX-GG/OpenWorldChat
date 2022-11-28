@@ -1,9 +1,22 @@
 import { Server } from 'socket.io';
 import {UserTokensAll, UserTokensBlackList} from "../models/ModelsMain";
 import { IMessageModel } from "../types/IMessageModel";
-import { User, Room, Message } from "../models/ModelsChat";
+import {User, Room, Message, Admin} from '../models/ModelsChat';
 import { ErrorEmitFuncType, RoomConnectType } from '../types/types';
 import { errorMsg } from "../constants/error";
+import {SOCKET_ADMIN_ALL_ROOMS} from '../constants/constants';
+import * as bcrypt from 'bcrypt';
+import {decryptedData} from '../api/api';
+import { Console } from 'console';
+
+export const confirmAdminSession = async (email: string, password: string) => {
+    try {
+        const admin = await Admin.findOne({where: {email: decryptedData(email)}})
+        return bcrypt.compare(decryptedData(password), admin?.dataValues.password)
+    } catch(e) {
+        return false
+    }
+}
 
 export const checkUserAuth = async (authToken: string) => {
     try {
@@ -27,6 +40,7 @@ export const findRooms = async (io: Server, userId: number, servicesId: number, 
     try {
         //! find all room
         const userRooms = await Room.findAll({where: {userId: userId}});
+
 
         //! correct connect to db
         if (Array.isArray(userRooms)) {
@@ -93,7 +107,7 @@ const createRoom = async (
             servicesId: connectData.servicesId,
             servicesName: connectData.services_name,
             userId: userInfo.id,
-            adminId: 1,
+            adminId: 999999,
         });
         console.log("room create");
         await room.save()
@@ -127,7 +141,7 @@ const createMessage = async (
 
         delete message.dataValues.updatedAt;
         //! emit frontend
-        io.in(roomName).emit("message save", message.dataValues);
+        io.to(roomName).to(SOCKET_ADMIN_ALL_ROOMS).emit("message save", message.dataValues);
         return true;
     } catch(e) {
         errorEmit(errorMsg.message);
@@ -173,5 +187,25 @@ export const getSendMessage = (
         } catch(e) {
             errorEmit(errorMsg.message)
         }
+    }
+}
+
+
+export const getAllRooms = async (
+    io: Server, 
+    errorEmit: ErrorEmitFuncType, 
+    page: number,
+    pageLimit: number,
+) => {
+    try {
+        const allRooms = await Room.findAndCountAll({
+            offset: (page - 1) * pageLimit, 
+            limit: pageLimit, 
+            include: [{model: Message, limit: 0}, {model: User}],
+        })
+        
+        io.in(SOCKET_ADMIN_ALL_ROOMS).emit("admin get all rooms", allRooms.rows)
+    } catch(e) {
+        errorEmit(errorMsg.rooms)
     }
 }

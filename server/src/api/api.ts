@@ -1,10 +1,9 @@
 import { SECRET_KEY } from './../constants/constants';
 import { Request, Response } from 'express';
-import {Admin} from '../models/ModelsChat';
-import * as bcrypt from "bcrypt"
 import * as CryptoJS from "crypto-js"
+import {confirmAdminSession} from '../services/services';
 
-const decryptedData = (data: string) => CryptoJS.AES.decrypt(data, SECRET_KEY as string).toString(CryptoJS.enc.Utf8);
+export const decryptedData = (data: string) => CryptoJS.AES.decrypt(data, SECRET_KEY as string).toString(CryptoJS.enc.Utf8);
 
 const apiResponse = (res: Response) => {
     return (code: number, data: object) => {
@@ -13,11 +12,10 @@ const apiResponse = (res: Response) => {
     }
 }
 
-const checkAdminSession = async (res: Response, email: string, password: string) => {
+export const checkAdminSession = async (res: Response, email: string, password: string) => {
     const api = apiResponse(res);
     try {
-        const admin = await Admin.findOne({where: {email}})
-        const isPassword = await bcrypt.compare(password, admin?.dataValues.password)
+        const isPassword = await confirmAdminSession(email, password);
 
         //! error password
         if (!isPassword) {
@@ -40,7 +38,7 @@ export const apiAdminAuth = async (req: Request, res: Response) => {
         return api(400, {msg: "Ошибка тела"})
       }
       
-      const isAdmin = await checkAdminSession(res, decryptedData(email), decryptedData(password));
+      const isAdmin = await checkAdminSession(res, email, password);
 
       if (isAdmin) {
         return api(200, {isAuth: true})
