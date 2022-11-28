@@ -3,10 +3,11 @@ import RoomsList from "components/Rooms/RoomsList/RoomsList";
 import SpinnerUI from "UI/SpinnerUI/SpinnerUI";
 import RoomsError from "components/Rooms/RoomsError/RoomsError";
 import { styled } from "@mui/material";
-import { useRoomsStore } from "hooks/store/useRoomsStore";
+import RoomsLoading from "components/Rooms/RoomsLoading/RoomsLoading";
+import { useSocketInit } from "../../hooks/useSocketInit";
 
 const Rooms = () => {
-  const { rooms, isLoading, hasError } = useRoomsStore();
+  const { rooms, isLoading, hasError, isEnd, handleGetRooms } = useSocketInit();
 
   return (
     <>
@@ -14,7 +15,12 @@ const Rooms = () => {
       {(isLoading || hasError) && (
         <BottomContainerSC>
           {isLoading && !hasError && <SpinnerUI />}
-          {hasError && <RoomsError error={hasError} />}
+          {hasError && !isLoading && <RoomsError error={hasError} />}
+        </BottomContainerSC>
+      )}
+      {!isEnd && (
+        <BottomContainerSC>
+          <RoomsLoading handleGetRooms={handleGetRooms} />
         </BottomContainerSC>
       )}
     </>
@@ -24,7 +30,8 @@ const Rooms = () => {
 const BottomContainerSC = styled("div")`
   display: flex;
   justify-content: center;
-  margin: 15px 0;
+  margin: 15px auto 0;
+  max-width: 200px;
 `;
 
 export default React.memo(Rooms);

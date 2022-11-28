@@ -6,10 +6,14 @@ import { IStatusModel } from "lib/models/IStatusModel";
 import { IMessageModel } from "lib/models/IMessageModel";
 import { roomsCopyArr } from "lib/services/services";
 
+const pageLimit = 1;
+
 interface IInitialState extends IStatusModel {
   rooms: IRoomModel[];
   page: number;
   pageLimit: number;
+  isEnd: boolean;
+  isSocketConnect: boolean;
 }
 
 const initialState: IInitialState = {
@@ -17,13 +21,18 @@ const initialState: IInitialState = {
   isLoading: true,
   hasError: "",
   page: 1,
-  pageLimit: 1,
+  pageLimit,
+  isEnd: false,
+  isSocketConnect: false,
 };
 
 export const roomsSlice = createSlice({
   name: "roomsSlice",
   initialState,
   reducers: {
+    roomsChangeSocketConnect(state, action: PayloadAction<boolean>) {
+      state.isSocketConnect = action.payload;
+    },
     roomsLoadingSlice(state) {
       state.isLoading = true;
       state.hasError = "";
@@ -35,10 +44,11 @@ export const roomsSlice = createSlice({
       state.hasError = action.payload;
     },
     roomsDataSlice(state, action: PayloadAction<IRoomModel[]>) {
-      state.rooms = action.payload;
+      state.rooms = [...state.rooms, ...action.payload];
       state.isLoading = false;
       state.hasError = "";
       state.page += 1;
+      state.isEnd = action.payload.length < pageLimit;
     },
     singleRoomDataSlice(state, action: PayloadAction<IRoomModel>) {
       state.rooms = [...state.rooms, action.payload];
@@ -81,6 +91,7 @@ export const {
   roomsErrorSlice,
   changeMessageInRoom,
   singleRoomDataSlice,
+  roomsChangeSocketConnect,
 } = roomsSlice.actions;
 
 const selectRoomsSlice = (state: RootState) =>

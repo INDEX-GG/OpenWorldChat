@@ -1,37 +1,56 @@
-import React, { useEffect, useState } from "react";
+import { useRoomsStore } from "hooks/store/useRoomsStore";
+import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { BASE_URL, PATH_URL } from "lib/constants/constants";
-import { SessionStorageEnum } from "types/types";
 import { useAppDispatch } from "hooks/store/useStore";
 import {
   changeMessageInRoom,
+  roomsChangeSocketConnect,
   roomsDataSlice,
   roomsErrorSlice,
   roomsLoadingSlice,
 } from "store/reducers/roomsSlice/roomsSlice";
+import { BASE_URL, PATH_URL } from "lib/constants/constants";
+import { SessionStorageEnum } from "types/types";
 import { IRoomModel } from "lib/models/IRoomModel";
-import { useRoomsStore } from "hooks/store/useRoomsStore";
 import { IMessageModel } from "lib/models/IMessageModel";
 
-const SocketInit = () => {
-  const { page, pageLimit } = useRoomsStore();
+export const useSocketInit = () => {
+  const {
+    page,
+    pageLimit,
+    hasError,
+    isLoading,
+    isEnd,
+    rooms,
+    isSocketConnect,
+  } = useRoomsStore();
   const [socketState, setSocketState] = useState<Socket | null>(null);
   const dispatch = useAppDispatch();
 
-  const handleGetRooms = (socket: Socket) => {
-    socket.emit("pagination rooms", { page, pageLimit });
+  const handleGetRooms = (socket = socketState) => {
+    if (socket) {
+      socket.emit("pagination rooms", { page, pageLimit });
+    } else {
+      if (socketState) {
+        socketState.emit("pagination rooms", { page, pageLimit });
+      }
+    }
   };
 
   const handleError = (socket = socketState) => {
     return (error: string) => {
       if (socket) {
         dispatch(roomsErrorSlice(error));
+        dispatch(roomsChangeSocketConnect(false));
         socket.disconnect();
       }
     };
   };
 
   useEffect(() => {
+    //! check socket connect
+    if (isSocketConnect) return;
+
     const socket = io(BASE_URL as string, {
       path: PATH_URL,
       query: {
@@ -43,13 +62,14 @@ const SocketInit = () => {
       },
     });
 
-    setSocketState(socketState);
+    setSocketState(socket);
 
     //! connect
     socket.on("connect", () => {
       //! connect room
       socket.emit("connect all rooms");
       dispatch(roomsLoadingSlice());
+      dispatch(roomsChangeSocketConnect(true));
     });
 
     //! error connect
@@ -66,6 +86,7 @@ const SocketInit = () => {
 
     //! get all rooms
     socket.on("admin get all rooms", (socket: IRoomModel[]) => {
+      console.log("admin get all rooms");
       dispatch(roomsDataSlice(socket));
     });
 
@@ -78,7 +99,11 @@ const SocketInit = () => {
     socket.on("error", handleError);
   }, []);
 
-  return null;
+  return {
+    rooms,
+    isEnd,
+    isLoading,
+    hasError,
+    handleGetRooms,
+  };
 };
-
-export default React.memo(SocketInit);
