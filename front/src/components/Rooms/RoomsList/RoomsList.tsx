@@ -10,9 +10,7 @@ const RoomsList = ({ data }: IRoomsListProps) => {
   return (
     <>
       {data.map((roomItem) => (
-        <div id={`${roomItem.id}`} key={roomItem.id}>
-          <RoomsItem {...roomItem} />
-        </div>
+        <RoomsItem key={roomItem.id} {...roomItem} />
       ))}
     </>
   );

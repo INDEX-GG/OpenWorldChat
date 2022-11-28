@@ -10,10 +10,10 @@ const Rooms = () => {
 
   return (
     <>
-      {rooms.length && <RoomsList data={rooms} />}
+      {!!rooms.length && <RoomsList data={rooms} />}
       {(isLoading || hasError) && (
         <BottomContainerSC>
-          {isLoading && <SpinnerUI />}
+          {isLoading && !hasError && <SpinnerUI />}
           {hasError && <RoomsError error={hasError} />}
         </BottomContainerSC>
       )}

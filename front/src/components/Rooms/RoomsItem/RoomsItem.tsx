@@ -3,16 +3,18 @@ import { IRoomModel } from "lib/models/IRoomModel";
 import { useRoomsItemStyles } from "components/Rooms/RoomsItem/styles";
 import { useRoomItem } from "components/Rooms/RoomsItem/useRoomItem";
 
-const RoomsItem = ({ id, title, message, date }: IRoomModel) => {
-  const { isActive, handleClickRoom } = useRoomItem(id);
+const RoomsItem = (props: IRoomModel) => {
+  const { isActive, handleClickRoom, userName, messageText, messageDate } =
+    useRoomItem(props);
+
   return (
     <ButtonSC activeStyle={isActive} onClick={handleClickRoom}>
       <MainInfoTextSC>
         <HeaderTextSC>
-          <TitleSC>{title}</TitleSC>
-          <DateSC>{date}</DateSC>
+          <TitleSC>{userName}</TitleSC>
+          <DateSC>{messageDate}</DateSC>
         </HeaderTextSC>
-        <MessageSC>{message}</MessageSC>
+        <MessageSC>{messageText}</MessageSC>
       </MainInfoTextSC>
     </ButtonSC>
   );

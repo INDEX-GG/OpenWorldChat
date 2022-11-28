@@ -1,5 +1,6 @@
 import { SECRET_KEY } from "lib/constants/constants";
 import CryptoJS from "crypto-js";
+import { IRoomModel } from "lib/models/IRoomModel";
 
 const secret = SECRET_KEY as string;
 
@@ -37,3 +38,13 @@ export const getAuthDataInSessionStorage = () => {
     };
   }
 };
+
+export const getRusDate = (date: string) => {
+  return new Date(date).toLocaleString("ru-RU", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+};
+
+export const roomsCopyArr = (rooms: IRoomModel[]): IRoomModel[] =>
+  JSON.parse(JSON.stringify(rooms));

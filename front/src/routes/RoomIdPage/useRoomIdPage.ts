@@ -10,7 +10,6 @@ export const useRoomIdPage = () => {
   const { roomId } = useParams();
   const dispatch = useAppDispatch();
 
-  console.log(BASE_URL);
   const socket = io(BASE_URL as string, {
     path: PATH_URL,
     query: {

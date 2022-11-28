@@ -5,11 +5,7 @@ import { useRoomIdPage } from "routes/RoomIdPage/useRoomIdPage";
 
 const RoomIdPage = () => {
   useRoomIdPage();
-  return (
-    <RoomsLayout isOverflowScroll={true}>
-      <Chat />
-    </RoomsLayout>
-  );
+  return <RoomsLayout isOverflowScroll={true}>{/*<Chat />*/}</RoomsLayout>;
 };
 
 export default React.memo(RoomIdPage);

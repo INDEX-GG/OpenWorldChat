@@ -3,7 +3,7 @@ import { IMessageModel } from "lib/models/IMessageModel";
 import { useChatMessageItem } from "components/Chat/ChatContent/ChatMessages/ChatMessageItem/useChatMessageItem";
 import { useChatMessageItemStyles } from "components/Chat/ChatContent/ChatMessages/ChatMessageItem/styles";
 
-const ChatMessageItem = (props: IMessageModel) => {
+const ChatMessageItem = (props: any) => {
   const { text, date } = props;
   const { isMyMessage } = useChatMessageItem(props);
 
