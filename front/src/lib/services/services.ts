@@ -1,6 +1,6 @@
 import { SECRET_KEY } from "lib/constants/constants";
 import CryptoJS from "crypto-js";
-import { IRoomModel } from "lib/models/IRoomModel";
+import { IChatRoom, IRoomModel } from "lib/models/IRoomModel";
 
 const secret = SECRET_KEY as string;
 
@@ -50,16 +50,49 @@ export const getUniqueRooms = (
   ...arrays: (IRoomModel | string)[][]
 ): string[] => {
   const uniqueRooms = new Set<string>();
+  //! exclude id
+  const excludePrevRoomId: number[] = [];
 
+  //! rest operator, all count arrays
   arrays.forEach((roomArray) => {
-    if (roomArray.length) {
-      roomArray.forEach((room) => {
-        if (room) {
-          uniqueRooms.add(
-            typeof room === "string"
-              ? room
-              : JSON.stringify({ room, status: 1 }),
-          );
+    //! check correct arr
+    if (Array.isArray(roomArray)) {
+      //! map inner arr
+      roomArray.forEach((roomItem) => {
+        if (roomItem) {
+          //! create unique room
+          let uniqRoom = null;
+          //! room = string || object
+          if (typeof roomItem === "string") {
+            //? STRING
+            //! parse json string to json IChatRoom
+            const parseRoom = JSON.parse(roomItem) as IChatRoom;
+            //! push excludes id
+            excludePrevRoomId.push(parseRoom.room.id);
+            //! add unique room (type string)
+            uniqRoom = roomItem;
+            //? STRING
+          } else {
+            //? OBJECT
+            //! check new room in state
+            const roomIsState = excludePrevRoomId.find(
+              (item) => item === roomItem.id,
+            );
+
+            if (!roomIsState) {
+              //! new unique room
+              uniqRoom = JSON.stringify({
+                room: roomItem,
+                status: 1,
+              } as IChatRoom);
+            }
+            //? OBJECT
+          }
+
+          //! add !new! unique room (type string)
+          if (uniqRoom) {
+            uniqueRooms.add(uniqRoom);
+          }
         }
       });
     }
