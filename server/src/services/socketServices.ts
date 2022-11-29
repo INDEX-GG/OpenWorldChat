@@ -10,8 +10,8 @@ import { errorMsg } from "../constants/error";
 export const socketConnection = (io: Server) => {
     return async (socket: Socket) => {
         //? query body
-        const data = socket.handshake.query;
-        const { userId, role, servicesId, customRoomName, email, password} = data as unknown as RoomConnectType;
+        const querySocket = socket.handshake.query;
+        const { userId, role, servicesId, customRoomName, email, password} = querySocket as unknown as RoomConnectType;
         const roomName = customRoomName || `room:userId=${userId}/servicesId=${servicesId}`;
 
         //? handle error emit
@@ -58,7 +58,7 @@ export const socketConnection = (io: Server) => {
                     let roomId = undefined;
                     
                     //? query body
-                    const { authToken, servicesId, services_name} = data as unknown as RoomConnectType;
+                    const { authToken, servicesId, services_name} = querySocket as unknown as RoomConnectType;
                     console.log(`${role}: ${userId} connected to room ${servicesId}`)
 
 
@@ -78,7 +78,6 @@ export const socketConnection = (io: Server) => {
                     }
 
                     //! user verify
-
                     io.in(roomName).emit("user verify")
 
                     //! find all rooms
@@ -90,9 +89,10 @@ export const socketConnection = (io: Server) => {
                         return;
                     };
 
-                    //! find room
-                    if (typeof room === "number") {
-                        roomId = room;
+
+                    //! room is find
+                    if (room?.id) {
+                        roomId = room.id;
                         isCreateRoom = false;
                     }
 
@@ -102,7 +102,17 @@ export const socketConnection = (io: Server) => {
                     }
 
                     //! send message
-                    socket.on("send message", getSendMessage(io, errorEmit, isCreateRoom, data as any, roomName, roomId))
+                    socket.on(
+                        "send message", 
+                        getSendMessage(
+                            io, 
+                            errorEmit, 
+                            isCreateRoom, 
+                            querySocket as any, 
+                            roomName, 
+                            room
+                        )
+                    )
                 } else {
 
                 }

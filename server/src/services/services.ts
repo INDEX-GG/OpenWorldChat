@@ -1,3 +1,4 @@
+import { IRoomModel } from './../types/IRoomModel';
 import { Server } from 'socket.io';
 import {UserTokensAll, UserTokensBlackList} from "../models/ModelsMain";
 import { IMessageModel } from "../types/IMessageModel";
@@ -66,7 +67,7 @@ export const findRooms = async (io: Server, userId: number, servicesId: number, 
                     const messageArray = messages.map(message => message.dataValues);
                     //! event frontend message list
                     io.in(roomName).emit("message list", messageArray);
-                    return currentRoom.id as number;
+                    return currentRoom;
                 }
             }
 
@@ -80,7 +81,7 @@ export const findRooms = async (io: Server, userId: number, servicesId: number, 
 
 const createRoom = async (
     io: Server, 
-    connectData: RoomConnectType, 
+    querySocket: RoomConnectType, 
     data: IMessageModel, 
     roomName: string,
     errorEmit: ErrorEmitFuncType, 
@@ -104,8 +105,8 @@ const createRoom = async (
         }
         //! create room
         const room = await Room.create({
-            servicesId: connectData.servicesId,
-            servicesName: connectData.services_name,
+            servicesId: querySocket.servicesId,
+            servicesName: querySocket.services_name,
             userId: userInfo.id,
             adminId: 999999,
         });
@@ -116,7 +117,7 @@ const createRoom = async (
         tryCount += 1;
         //! try create
         if (tryCount > 0 && tryCount  <= 5) {
-            createRoom(io, connectData, data, roomName, errorEmit, tryCount);
+            createRoom(io, querySocket, data, roomName, errorEmit, tryCount);
         } else {
             //! error create room
             errorEmit(errorMsg.room);
@@ -127,23 +128,28 @@ const createRoom = async (
 
 const createMessage = async (
     io: Server, 
-    roomName: string, 
-    data: IMessageModel,
     errorEmit: ErrorEmitFuncType,
+    roomName: string, 
+    messageInfo: IMessageModel,
+    roomInfo: IRoomModel,
 ) => {
     try {
         const message = await Message.create({
-            roomId: data.roomId,
-            text: data.message,
-            senderId: data.userInfo.id,
+            roomId: messageInfo.roomId,
+            text: messageInfo.message,
+            senderId: messageInfo.userInfo.id,
         })
         await message.save();
 
-        delete message.dataValues.updatedAt;
-        //! emit frontend
-        io.to(roomName).to(SOCKET_ADMIN_ALL_ROOMS).emit("message save", message.dataValues);
+        //! emit frontend user chat (mobile)
+        io.in(roomName).emit("message save", message.dataValues);
+
+        //! emit frontend admin chat (website)
+        io.in(SOCKET_ADMIN_ALL_ROOMS).emit("message get admin", {message: message.dataValues, room: roomInfo});
+        
         return true;
     } catch(e) {
+        console.log(e);
         errorEmit(errorMsg.message);
         return false;
     }
@@ -155,28 +161,40 @@ export const getSendMessage = (
     io: Server, 
     errorEmit: ErrorEmitFuncType, 
     isCreateRoom: boolean, 
-    connectData: RoomConnectType, 
+    querySocket: RoomConnectType, 
     roomName: string,
-    roomId?: number,
+    roomInfo?: IRoomModel,
 ) => {
-    return async (data: IMessageModel) => {
+    return async (message: IMessageModel) => {
         //! Main logic
         try {
-            if (data.userInfo.id) {
+            if (message.userInfo.id) {
                 //! If room not found room
                 if (isCreateRoom) {
                     //! create new room;
-                    createRoom(io, connectData, data, roomName, errorEmit).then((room) => {
-                        if (room) {
+                    createRoom(io, querySocket, message, roomName, errorEmit).then((newRoom) => {
+                        if (newRoom) {
                             isCreateRoom = false,
-                            roomId = room.dataValues.id;
-                            createMessage(io, roomName, {...data, roomId: room.dataValues.id}, errorEmit);
+                            roomInfo = newRoom.dataValues;
+                            createMessage(
+                                io, 
+                                errorEmit, 
+                                roomName, 
+                                {...message, roomId: newRoom.dataValues.id}, 
+                                newRoom as any,
+                            );
                         }
                     })
                 } else {
                     //! create message
-                    if (roomId) {
-                        createMessage(io, roomName, {...data, roomId: roomId}, errorEmit);
+                    if (roomInfo) {
+                        createMessage(
+                            io, 
+                            errorEmit, 
+                            roomName, 
+                            {...message, roomId: roomInfo.id}, 
+                            roomInfo,
+                            );
                     } else {
                         errorEmit(errorMsg.message)
                     }
