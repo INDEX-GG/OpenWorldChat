@@ -12,3 +12,11 @@ export interface IRoomModel {
   messages: IMessageModel[];
   user: IUserModel;
 }
+
+export interface IStatus {
+  status: number;
+}
+
+export interface IChatRoom extends IStatus {
+  room: IRoomModel;
+}

@@ -56,7 +56,9 @@ export const getUniqueRooms = (
       roomArray.forEach((room) => {
         if (room) {
           uniqueRooms.add(
-            typeof room === "string" ? room : JSON.stringify(room),
+            typeof room === "string"
+              ? room
+              : JSON.stringify({ room, status: 1 }),
           );
         }
       });

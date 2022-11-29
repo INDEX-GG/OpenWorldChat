@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IRoomModel } from "lib/models/IRoomModel";
+import { IChatRoom, IRoomModel } from "lib/models/IRoomModel";
 import { RootState } from "store/store";
 import { RootReducerNameSpace } from "store/rootReducer";
 import { IStatusModel } from "lib/models/IStatusModel";
@@ -56,8 +56,8 @@ export const roomsSlice = createSlice({
 
         if (Array.isArray(copyRooms)) {
           copyRooms.forEach((room, index) => {
-            const parsedRoom = JSON.parse(room) as IRoomModel;
-            if (parsedRoom.id === action.payload.id) {
+            const parsedRoom = JSON.parse(room) as IChatRoom;
+            if (parsedRoom.room.id === action.payload.id) {
               roomIndex = index;
             }
           });
@@ -67,14 +67,23 @@ export const roomsSlice = createSlice({
           const beforeRooms = JSON.parse(JSON.stringify(copyRooms));
           const afterRooms = JSON.parse(JSON.stringify(copyRooms));
 
+          console.log([
+            ...beforeRooms.slice(0, roomIndex),
+            JSON.stringify({ room: action.payload, status: 2 }),
+            ...afterRooms.slice(roomIndex + 1),
+          ]);
+
           state.rooms = [
             ...beforeRooms.slice(0, roomIndex),
-            JSON.stringify(action.payload),
+            JSON.stringify({ room: action.payload, status: 2 }),
             ...afterRooms.slice(roomIndex + 1),
           ];
         } else {
           //! not found
-          state.rooms = [JSON.stringify(action.payload), ...copyRooms];
+          state.rooms = [
+            JSON.stringify({ room: action.payload, status: 2 }),
+            ...copyRooms,
+          ];
         }
       } catch (e) {
         throw new Error("error change rooms");

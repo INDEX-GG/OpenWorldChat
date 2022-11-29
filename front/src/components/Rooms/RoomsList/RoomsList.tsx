@@ -1,5 +1,5 @@
 import React from "react";
-import { IRoomModel } from "lib/models/IRoomModel";
+import { IChatRoom } from "lib/models/IRoomModel";
 import RoomsItem from "components/Rooms/RoomsItem/RoomsItem";
 
 interface IRoomsListProps {
@@ -10,8 +10,8 @@ const RoomsList = ({ data }: IRoomsListProps) => {
   return (
     <>
       {data.map((roomItem) => {
-        const parseRoomItem = JSON.parse(roomItem) as IRoomModel;
-        return <RoomsItem key={parseRoomItem.id} {...parseRoomItem} />;
+        const parseRoomItem = JSON.parse(roomItem) as IChatRoom;
+        return <RoomsItem key={parseRoomItem.room.id} {...parseRoomItem} />;
       })}
     </>
   );

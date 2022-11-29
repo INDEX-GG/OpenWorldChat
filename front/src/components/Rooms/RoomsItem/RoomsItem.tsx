@@ -1,17 +1,21 @@
-import React from "react";
-import { IRoomModel } from "lib/models/IRoomModel";
+import React, { useMemo } from "react";
+import { IChatRoom } from "lib/models/IRoomModel";
 import { useRoomsItemStyles } from "components/Rooms/RoomsItem/styles";
 import { useRoomItem } from "components/Rooms/RoomsItem/useRoomItem";
 
-const RoomsItem = (props: IRoomModel) => {
+const RoomsItem = (props: IChatRoom) => {
   const { isActive, handleClickRoom, userName, messageText, messageDate } =
-    useRoomItem(props);
+    useRoomItem(props.room);
+  const isNewMessage = useMemo(() => props.status === 2, [props]);
 
   return (
     <ButtonSC activeStyle={isActive} onClick={handleClickRoom}>
       <MainInfoTextSC>
         <HeaderTextSC>
-          <TitleSC>{userName}</TitleSC>
+          <TitleContainerSC>
+            <TitleSC>{userName}</TitleSC>
+            {isNewMessage && <NewMessageSC />}
+          </TitleContainerSC>
           <DateSC>{messageDate}</DateSC>
         </HeaderTextSC>
         <MessageSC>{messageText}</MessageSC>
@@ -20,7 +24,15 @@ const RoomsItem = (props: IRoomModel) => {
   );
 };
 
-const { ButtonSC, MainInfoTextSC, HeaderTextSC, TitleSC, MessageSC, DateSC } =
-  useRoomsItemStyles();
+const {
+  ButtonSC,
+  MainInfoTextSC,
+  HeaderTextSC,
+  TitleSC,
+  MessageSC,
+  DateSC,
+  TitleContainerSC,
+  NewMessageSC,
+} = useRoomsItemStyles();
 
 export default React.memo(RoomsItem);
