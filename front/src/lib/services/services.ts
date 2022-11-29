@@ -66,5 +66,5 @@ export const getUniqueRooms = (
   return Array.from(uniqueRooms);
 };
 
-export const roomsCopyArr = (rooms: string[]): IRoomModel[] =>
+export const roomsCopyArr = (rooms: string[]): string[] =>
   JSON.parse(JSON.stringify(rooms));

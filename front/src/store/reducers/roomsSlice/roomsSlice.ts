@@ -3,7 +3,6 @@ import { IRoomModel } from "lib/models/IRoomModel";
 import { RootState } from "store/store";
 import { RootReducerNameSpace } from "store/rootReducer";
 import { IStatusModel } from "lib/models/IStatusModel";
-import { IMessageModel } from "lib/models/IMessageModel";
 import { getUniqueRooms, roomsCopyArr } from "lib/services/services";
 
 const pageLimit = 50;
@@ -50,32 +49,33 @@ export const roomsSlice = createSlice({
       state.page += 1;
       state.isEnd = action.payload.length < pageLimit;
     },
-    changeMessageInRoom(state, action: PayloadAction<IMessageModel>) {
+    changeMessageInRoom(state, action: PayloadAction<IRoomModel>) {
       try {
-        console.log(action.payload);
-        // const message = action.payload;
-        // const copyRooms = roomsCopyArr(state.rooms);
-        // const beforeRooms = roomsCopyArr(copyRooms);
-        // const afterRooms = roomsCopyArr(copyRooms);
-        // const roomIndex = copyRooms.findIndex(
-        //   (item) => item.id === message.roomId,
-        // );
-        // // ! find index
-        // if (roomIndex >= 0) {
-        //   //! current room
-        //   const currentRoom = copyRooms[roomIndex] as IRoomModel;
-        //   if (currentRoom) {
-        //     const modifyCurrentRoom = {
-        //       ...currentRoom,
-        //       messages: [...currentRoom.messages, message],
-        //     } as IRoomModel;
-        //     state.rooms = [
-        //       ...beforeRooms.slice(0, roomIndex),
-        //       modifyCurrentRoom,
-        //       ...afterRooms.slice(roomIndex + 1),
-        //     ];
-        //   }
-        // }
+        let roomIndex = -1;
+        const copyRooms = roomsCopyArr(state.rooms);
+
+        if (Array.isArray(copyRooms)) {
+          copyRooms.forEach((room, index) => {
+            const parsedRoom = JSON.parse(room) as IRoomModel;
+            if (parsedRoom.id === action.payload.id) {
+              roomIndex = index;
+            }
+          });
+        }
+
+        if (roomIndex >= 0) {
+          const beforeRooms = JSON.parse(JSON.stringify(copyRooms));
+          const afterRooms = JSON.parse(JSON.stringify(copyRooms));
+
+          state.rooms = [
+            ...beforeRooms.slice(0, roomIndex),
+            JSON.stringify(action.payload),
+            ...afterRooms.slice(roomIndex + 1),
+          ];
+        } else {
+          //! not found
+          state.rooms = [JSON.stringify(action.payload), ...copyRooms];
+        }
       } catch (e) {
         throw new Error("error change rooms");
       }

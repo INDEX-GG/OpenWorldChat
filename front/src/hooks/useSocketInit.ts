@@ -12,7 +12,6 @@ import {
 import { BASE_URL, PATH_URL } from "lib/constants/constants";
 import { SessionStorageEnum } from "types/types";
 import { IRoomModel } from "lib/models/IRoomModel";
-import { IMessageModel } from "lib/models/IMessageModel";
 
 export const useSocketInit = () => {
   const {
@@ -91,8 +90,8 @@ export const useSocketInit = () => {
     });
 
     //! new message
-    socket.on("message save", (message: IMessageModel) => {
-      dispatch(changeMessageInRoom(message));
+    socket.on("message get admin", (data: IRoomModel) => {
+      dispatch(changeMessageInRoom(data));
     });
 
     //! error
