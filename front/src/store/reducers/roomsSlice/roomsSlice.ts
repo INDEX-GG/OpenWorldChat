@@ -4,12 +4,12 @@ import { RootState } from "store/store";
 import { RootReducerNameSpace } from "store/rootReducer";
 import { IStatusModel } from "lib/models/IStatusModel";
 import { IMessageModel } from "lib/models/IMessageModel";
-import { roomsCopyArr } from "lib/services/services";
+import { getUniqueRooms, roomsCopyArr } from "lib/services/services";
 
-const pageLimit = 1;
+const pageLimit = 50;
 
 interface IInitialState extends IStatusModel {
-  rooms: IRoomModel[];
+  rooms: string[];
   page: number;
   pageLimit: number;
   isEnd: boolean;
@@ -44,40 +44,38 @@ export const roomsSlice = createSlice({
       state.hasError = action.payload;
     },
     roomsDataSlice(state, action: PayloadAction<IRoomModel[]>) {
-      state.rooms = [...state.rooms, ...action.payload];
+      state.rooms = getUniqueRooms(roomsCopyArr(state.rooms), action.payload);
       state.isLoading = false;
       state.hasError = "";
       state.page += 1;
       state.isEnd = action.payload.length < pageLimit;
     },
-    singleRoomDataSlice(state, action: PayloadAction<IRoomModel>) {
-      state.rooms = [...state.rooms, action.payload];
-    },
     changeMessageInRoom(state, action: PayloadAction<IMessageModel>) {
       try {
-        const message = action.payload;
-        const copyRooms = roomsCopyArr(state.rooms);
-        const beforeRooms = roomsCopyArr(copyRooms);
-        const afterRooms = roomsCopyArr(copyRooms);
-        const roomIndex = copyRooms.findIndex(
-          (item) => item.id === message.roomId,
-        );
-        // ! find index
-        if (roomIndex >= 0) {
-          //! current room
-          const currentRoom = copyRooms[roomIndex] as IRoomModel;
-          if (currentRoom) {
-            const modifyCurrentRoom = {
-              ...currentRoom,
-              messages: [...currentRoom.messages, message],
-            } as IRoomModel;
-            state.rooms = [
-              ...beforeRooms.slice(0, roomIndex),
-              modifyCurrentRoom,
-              ...afterRooms.slice(roomIndex + 1),
-            ];
-          }
-        }
+        console.log(action.payload);
+        // const message = action.payload;
+        // const copyRooms = roomsCopyArr(state.rooms);
+        // const beforeRooms = roomsCopyArr(copyRooms);
+        // const afterRooms = roomsCopyArr(copyRooms);
+        // const roomIndex = copyRooms.findIndex(
+        //   (item) => item.id === message.roomId,
+        // );
+        // // ! find index
+        // if (roomIndex >= 0) {
+        //   //! current room
+        //   const currentRoom = copyRooms[roomIndex] as IRoomModel;
+        //   if (currentRoom) {
+        //     const modifyCurrentRoom = {
+        //       ...currentRoom,
+        //       messages: [...currentRoom.messages, message],
+        //     } as IRoomModel;
+        //     state.rooms = [
+        //       ...beforeRooms.slice(0, roomIndex),
+        //       modifyCurrentRoom,
+        //       ...afterRooms.slice(roomIndex + 1),
+        //     ];
+        //   }
+        // }
       } catch (e) {
         throw new Error("error change rooms");
       }
@@ -90,7 +88,6 @@ export const {
   roomsLoadingSlice,
   roomsErrorSlice,
   changeMessageInRoom,
-  singleRoomDataSlice,
   roomsChangeSocketConnect,
 } = roomsSlice.actions;
 

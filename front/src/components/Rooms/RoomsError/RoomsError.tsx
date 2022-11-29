@@ -4,13 +4,14 @@ import ButtonUI from "UI/ButtonUI/ButtonUI";
 
 interface IRoomsError {
   error: string;
+  handleSocketConnect: () => void;
 }
 
-const RoomsError = ({ error }: IRoomsError) => {
+const RoomsError = ({ error, handleSocketConnect }: IRoomsError) => {
   return (
     <ErrorContainerSC>
       <ErrorParagraphSC>{error}</ErrorParagraphSC>
-      <ButtonUI>Повторная загрузка</ButtonUI>
+      <ButtonUI onClick={handleSocketConnect}>Повторная загрузка</ButtonUI>
     </ErrorContainerSC>
   );
 };

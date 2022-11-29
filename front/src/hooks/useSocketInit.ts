@@ -30,10 +30,12 @@ export const useSocketInit = () => {
   const handleGetRooms = (socket = socketState) => {
     if (socket) {
       socket.emit("pagination rooms", { page, pageLimit });
-    } else {
-      if (socketState) {
-        socketState.emit("pagination rooms", { page, pageLimit });
-      }
+    }
+  };
+
+  const handleSocketConnect = () => {
+    if (socketState) {
+      socketState.connect();
     }
   };
 
@@ -62,8 +64,6 @@ export const useSocketInit = () => {
       },
     });
 
-    setSocketState(socket);
-
     //! connect
     socket.on("connect", () => {
       //! connect room
@@ -82,12 +82,12 @@ export const useSocketInit = () => {
     //! confirm auth
     socket.on("admin confirm", () => {
       handleGetRooms(socket);
+      setSocketState(socket);
     });
 
     //! get all rooms
-    socket.on("admin get all rooms", (socket: IRoomModel[]) => {
-      console.log("admin get all rooms");
-      dispatch(roomsDataSlice(socket));
+    socket.on("admin get all rooms", (rooms: IRoomModel[]) => {
+      dispatch(roomsDataSlice(rooms));
     });
 
     //! new message
@@ -97,6 +97,12 @@ export const useSocketInit = () => {
 
     //! error
     socket.on("error", handleError);
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        socket.emit("admin leave all room");
+      }
+    });
   }, []);
 
   return {
@@ -105,5 +111,6 @@ export const useSocketInit = () => {
     isLoading,
     hasError,
     handleGetRooms,
+    handleSocketConnect,
   };
 };

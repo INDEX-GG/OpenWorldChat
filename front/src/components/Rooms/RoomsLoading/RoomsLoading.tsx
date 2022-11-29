@@ -6,7 +6,7 @@ interface IRoomsLoadingProps {
 }
 
 const RoomsLoading = ({ handleGetRooms }: IRoomsLoadingProps) => {
-  return <ButtonUI onClick={handleGetRooms}>Загрузить ещё</ButtonUI>;
+  return <ButtonUI onClick={() => handleGetRooms()}>Загрузить ещё</ButtonUI>;
 };
 
 export default React.memo(RoomsLoading);

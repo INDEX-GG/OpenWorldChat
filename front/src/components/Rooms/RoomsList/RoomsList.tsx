@@ -3,15 +3,16 @@ import { IRoomModel } from "lib/models/IRoomModel";
 import RoomsItem from "components/Rooms/RoomsItem/RoomsItem";
 
 interface IRoomsListProps {
-  data: IRoomModel[];
+  data: string[];
 }
 
 const RoomsList = ({ data }: IRoomsListProps) => {
   return (
     <>
-      {data.map((roomItem) => (
-        <RoomsItem key={roomItem.id} {...roomItem} />
-      ))}
+      {data.map((roomItem) => {
+        const parseRoomItem = JSON.parse(roomItem) as IRoomModel;
+        return <RoomsItem key={parseRoomItem.id} {...parseRoomItem} />;
+      })}
     </>
   );
 };

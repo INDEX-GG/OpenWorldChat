@@ -46,5 +46,25 @@ export const getRusDate = (date: string) => {
   });
 };
 
-export const roomsCopyArr = (rooms: IRoomModel[]): IRoomModel[] =>
+export const getUniqueRooms = (
+  ...arrays: (IRoomModel | string)[][]
+): string[] => {
+  const uniqueRooms = new Set<string>();
+
+  arrays.forEach((roomArray) => {
+    if (roomArray.length) {
+      roomArray.forEach((room) => {
+        if (room) {
+          uniqueRooms.add(
+            typeof room === "string" ? room : JSON.stringify(room),
+          );
+        }
+      });
+    }
+  });
+
+  return Array.from(uniqueRooms);
+};
+
+export const roomsCopyArr = (rooms: string[]): IRoomModel[] =>
   JSON.parse(JSON.stringify(rooms));
