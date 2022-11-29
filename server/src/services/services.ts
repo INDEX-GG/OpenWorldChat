@@ -144,8 +144,10 @@ const createMessage = async (
         //! emit frontend user chat (mobile)
         io.in(roomName).emit("message save", message.dataValues);
 
+        //! get current room
+        const room = await Room.findOne({where: {id: roomInfo.id}, include: [{model: Message, limit: 0}, {model: User}]})
         //! emit frontend admin chat (website)
-        io.in(SOCKET_ADMIN_ALL_ROOMS).emit("message get admin", {message: message.dataValues, room: roomInfo});
+        io.in(SOCKET_ADMIN_ALL_ROOMS).emit("message get admin", room);
         
         return true;
     } catch(e) {
