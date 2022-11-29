@@ -29,7 +29,13 @@ export const socketConnection = (io: Server) => {
         
         //! admin connect all rooms
         socket.on("connect all rooms", () => {
-            console.log("admin connect all rooms")
+            socket.join(SOCKET_ADMIN_ALL_ROOMS)
+        })
+
+        //! admin leave all room
+        socket.on("admin leave all room", () => {
+            //! reopen browser tab
+            socket.leave(SOCKET_ADMIN_ALL_ROOMS);
             socket.join(SOCKET_ADMIN_ALL_ROOMS)
         })
 
