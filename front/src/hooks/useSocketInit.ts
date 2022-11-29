@@ -4,6 +4,7 @@ import { io, Socket } from "socket.io-client";
 import { useAppDispatch } from "hooks/store/useStore";
 import {
   changeMessageInRoom,
+  roomsChangePage,
   roomsChangeSocketConnect,
   roomsDataSlice,
   roomsErrorSlice,
@@ -12,30 +13,33 @@ import {
 import { BASE_URL, PATH_URL } from "lib/constants/constants";
 import { SessionStorageEnum } from "types/types";
 import { IRoomModel } from "lib/models/IRoomModel";
+import { useAuthStore } from "hooks/store/useAuthStore";
 
 export const useSocketInit = () => {
   const {
     page,
-    pageLimit,
     hasError,
     isLoading,
     isEnd,
     rooms,
     isSocketConnect,
+    pageLimit,
   } = useRoomsStore();
+
+  const { isAuth } = useAuthStore();
+
   const [socketState, setSocketState] = useState<Socket | null>(null);
   const dispatch = useAppDispatch();
 
   const handleGetRooms = (socket = socketState) => {
-    if (socket) {
-      socket.emit("pagination rooms", { page, pageLimit });
+    //! socket loading
+    if (socket && socket.connected && !isEnd) {
+      dispatch(roomsChangePage());
     }
   };
 
-  const handleSocketConnect = () => {
-    if (socketState) {
-      socketState.connect();
-    }
+  const handleSocketConnect = async () => {
+    socketState?.connect();
   };
 
   const handleError = (socket = socketState) => {
@@ -80,7 +84,6 @@ export const useSocketInit = () => {
 
     //! confirm auth
     socket.on("admin confirm", () => {
-      handleGetRooms(socket);
       setSocketState(socket);
     });
 
@@ -97,12 +100,46 @@ export const useSocketInit = () => {
     //! error
     socket.on("error", handleError);
 
-    document.addEventListener("visibilitychange", () => {
+    const handleChangeVisibility = () => {
       if (!document.hidden) {
         socket.emit("admin leave all room");
       }
-    });
+    };
+
+    //! visibility api
+    document.addEventListener("visibilitychange", handleChangeVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", handleChangeVisibility);
+    };
   }, []);
+
+  //! error render
+  useEffect(() => {
+    if (socketState && isAuth) {
+      //! get first rooms
+      handleGetRooms();
+
+      //! reconnect in error check handleGetRooms
+      socketState.on("connect", () => {
+        handleGetRooms();
+      });
+
+      //! error reconnect in error check handleGetRooms
+      socketState.on("connect_error", () => {
+        handleError(socketState)(
+          "Ошибка подключения пожалуйста попробуйте подключиться позже",
+        );
+      });
+    }
+  }, [socketState, isAuth]);
+
+  //! pagination loading
+  //? учтен нестабильный интернет
+  useEffect(() => {
+    if (socketState && page && isLoading && isSocketConnect) {
+      socketState.emit("pagination rooms", { page, pageLimit });
+    }
+  }, [socketState?.connected, page, isLoading, isSocketConnect]);
 
   return {
     rooms,

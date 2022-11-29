@@ -5,7 +5,7 @@ import { RootReducerNameSpace } from "store/rootReducer";
 import { IStatusModel } from "lib/models/IStatusModel";
 import { getUniqueRooms, roomsCopyArr } from "lib/services/services";
 
-const pageLimit = 50;
+const pageLimit = 1;
 
 interface IInitialState extends IStatusModel {
   rooms: string[];
@@ -19,7 +19,7 @@ const initialState: IInitialState = {
   rooms: [],
   isLoading: true,
   hasError: "",
-  page: 1,
+  page: 0,
   pageLimit,
   isEnd: false,
   isSocketConnect: false,
@@ -29,6 +29,10 @@ export const roomsSlice = createSlice({
   name: "roomsSlice",
   initialState,
   reducers: {
+    roomsChangePage(state) {
+      state.page += 1;
+      state.isLoading = true;
+    },
     roomsChangeSocketConnect(state, action: PayloadAction<boolean>) {
       state.isSocketConnect = action.payload;
     },
@@ -38,15 +42,12 @@ export const roomsSlice = createSlice({
     },
     roomsErrorSlice(state, action: PayloadAction<string>) {
       state.isLoading = false;
-      state.rooms = [];
-      state.page = 1;
       state.hasError = action.payload;
     },
     roomsDataSlice(state, action: PayloadAction<IRoomModel[]>) {
       state.rooms = getUniqueRooms(roomsCopyArr(state.rooms), action.payload);
       state.isLoading = false;
       state.hasError = "";
-      state.page += 1;
       state.isEnd = action.payload.length < pageLimit;
     },
     changeMessageInRoom(state, action: PayloadAction<IRoomModel>) {
@@ -63,27 +64,20 @@ export const roomsSlice = createSlice({
           });
         }
 
+        const newRoom = JSON.stringify({ room: action.payload, status: 2 });
+
         if (roomIndex >= 0) {
           const beforeRooms = JSON.parse(JSON.stringify(copyRooms));
           const afterRooms = JSON.parse(JSON.stringify(copyRooms));
 
-          console.log([
-            ...beforeRooms.slice(0, roomIndex),
-            JSON.stringify({ room: action.payload, status: 2 }),
-            ...afterRooms.slice(roomIndex + 1),
-          ]);
-
           state.rooms = [
             ...beforeRooms.slice(0, roomIndex),
-            JSON.stringify({ room: action.payload, status: 2 }),
+            newRoom,
             ...afterRooms.slice(roomIndex + 1),
           ];
         } else {
-          //! not found
-          state.rooms = [
-            JSON.stringify({ room: action.payload, status: 2 }),
-            ...copyRooms,
-          ];
+          //! room not found
+          state.rooms = [newRoom, ...copyRooms];
         }
       } catch (e) {
         throw new Error("error change rooms");
@@ -96,6 +90,7 @@ export const {
   roomsDataSlice,
   roomsLoadingSlice,
   roomsErrorSlice,
+  roomsChangePage,
   changeMessageInRoom,
   roomsChangeSocketConnect,
 } = roomsSlice.actions;

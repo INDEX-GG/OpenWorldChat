@@ -64,7 +64,6 @@ export const getUniqueRooms = (
       });
     }
   });
-
   return Array.from(uniqueRooms);
 };
 

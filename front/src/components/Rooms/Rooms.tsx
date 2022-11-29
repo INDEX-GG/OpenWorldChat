@@ -26,6 +26,7 @@ const Rooms = () => {
             <RoomsError
               error={hasError}
               handleSocketConnect={handleSocketConnect}
+              handleGetRooms={handleGetRooms}
             />
           )}
         </BottomContainerSC>

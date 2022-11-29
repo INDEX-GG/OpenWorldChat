@@ -6,7 +6,7 @@ import { useRoomItem } from "components/Rooms/RoomsItem/useRoomItem";
 const RoomsItem = (props: IChatRoom) => {
   const { isActive, handleClickRoom, userName, messageText, messageDate } =
     useRoomItem(props.room);
-  const isNewMessage = useMemo(() => props.status === 2, [props]);
+  const isNewMessage = useMemo(() => props?.status === 2, [props]);
 
   return (
     <ButtonSC activeStyle={isActive} onClick={handleClickRoom}>
