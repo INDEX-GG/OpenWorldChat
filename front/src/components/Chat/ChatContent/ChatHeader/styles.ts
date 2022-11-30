@@ -13,11 +13,11 @@ const NameSC = styled("h1")`
   line-height: 20px;
   margin: 0 18px 0 0;
 `;
-const EmailSC = styled("h2")`
+const EmailSC = styled("h2")<{ isMain: boolean }>`
   font-weight: 600;
   font-size: 16px;
   line-height: 20px;
-  color: #c7c7c7;
+  color: ${({ isMain }) => (isMain ? "#161616" : "#c7c7c7")};
 `;
 
 export const useChatHeaderStyles = () => ({

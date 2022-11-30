@@ -5,7 +5,7 @@ export const useChatSend = () => {
 
   const handleChangeValue = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    if (value.length <= 1000) {
+    if (value.length <= 600) {
       setValue(e.target.value);
     }
   };

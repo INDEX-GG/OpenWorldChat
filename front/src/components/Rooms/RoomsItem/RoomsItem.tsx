@@ -9,7 +9,9 @@ const RoomsItem = (props: IChatRoom) => {
   const isNewMessage = useMemo(() => props?.status === 2, [props]);
 
   return (
-    <ButtonSC activeStyle={isActive} onClick={handleClickRoom}>
+    <ButtonSC
+      activeStyle={isActive}
+      onClick={!isActive ? handleClickRoom : undefined}>
       <MainInfoTextSC>
         <HeaderTextSC>
           <TitleContainerSC>

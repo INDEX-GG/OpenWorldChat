@@ -1,56 +1,50 @@
-import { io } from "socket.io-client";
-import { useAppDispatch } from "hooks/store/useStore";
-import { chatConnect } from "store/reducers/chatSlice/chatSlice";
-import { useParams } from "react-router-dom";
 import { useEffect } from "react";
-import { IStatusModel } from "lib/models/IStatusModel";
-import { BASE_URL, PATH_URL } from "lib/constants/constants";
+import { ADMIN_ID } from "lib/constants/constants";
+import { useChatStore } from "hooks/store/useChatStore";
+import { useParams } from "react-router-dom";
 
 export const useRoomIdPage = () => {
-  const { roomId } = useParams();
-  const dispatch = useAppDispatch();
+  // const [socketState, setSocketState] = useState<Socket | null>(null);
+  const params = useParams();
+  const { room, isLoading, handleGetCurrentChatInfo, handleResetChat } =
+    useChatStore();
 
-  const socket = io(BASE_URL as string, {
-    path: PATH_URL,
-    query: {
-      roomId,
-      role: "admin",
-      authToken: "123",
-    },
-  });
-
-  const handleChangeChatConnect = (data: IStatusModel) => {
-    dispatch(chatConnect(data));
-  };
-
-  //! socket connect
-  socket.on("connect", () => {
-    setTimeout(
-      () => handleChangeChatConnect({ isLoading: false, hasError: "" }),
-      200,
-    );
-  });
-
-  //! connect error
-  socket.on("connect_error", () => {
-    handleChangeChatConnect({
-      isLoading: false,
-      hasError: "Ошибка подключения к комнате",
-    });
-  });
-
-  //! disconnect
   useEffect(() => {
+    if (params) {
+      const { roomId } = params;
+      console.log(roomId);
+      if (roomId && ADMIN_ID) {
+        handleGetCurrentChatInfo({ roomId: +roomId });
+      }
+    }
     return () => {
-      socket.disconnect();
-      handleChangeChatConnect({
-        isLoading: true,
-        hasError: "",
-      });
+      handleResetChat();
     };
-  }, [roomId]);
+  }, [params]);
+
+  useEffect(() => {
+    if (!isLoading && room && room.id) {
+      console.log(123);
+
+      // const socket = io(BASE_URL as string, {
+      //   path: PATH_URL,
+      //   query: {
+      //     role: "admin",
+      //     userId: ADMIN_ID,
+      //     email: sessionStorage.getItem(SessionStorageEnum.EMAIL),
+      //     password: sessionStorage.getItem(SessionStorageEnum.PASSWORD),
+      //   },
+      // });
+      //
+      // socket.on("connect", () => {
+      //   setSocketState(socket);
+      //   console.log(rooms);
+      //   socket.emit("connect current rooms");
+      // });
+    }
+  }, [isLoading, room]);
 
   return {
-    socket,
+    // socketState,
   };
 };

@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMemo } from "react";
 import { IRoomModel } from "lib/models/IRoomModel";
 import { getRusDate } from "lib/services/services";
+import { ADMIN_ID } from "lib/constants/constants";
 
 export const useRoomItem = (props: IRoomModel) => {
   const { id, user, messages } = props;
@@ -15,7 +16,7 @@ export const useRoomItem = (props: IRoomModel) => {
 
   const userName = useMemo(() => {
     //! this is admin
-    if (lastMessage.senderId === 999999) {
+    if (lastMessage.senderId === ADMIN_ID) {
       return "Администратор приложения";
     }
     if (user.name || user.lastname || user.patronymic) {

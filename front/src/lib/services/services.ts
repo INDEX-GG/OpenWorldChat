@@ -1,6 +1,7 @@
 import { SECRET_KEY } from "lib/constants/constants";
 import CryptoJS from "crypto-js";
 import { IChatRoom, IRoomModel } from "lib/models/IRoomModel";
+import { SessionStorageEnum } from "types/types";
 
 const secret = SECRET_KEY as string;
 
@@ -42,6 +43,18 @@ export const getAuthDataInSessionStorage = () => {
 export const getRusDate = (date: string) => {
   return new Date(date).toLocaleString("ru-RU", {
     dateStyle: "short",
+    timeStyle: "short",
+  });
+};
+
+export const getRusDateDay = (date: string) => {
+  return new Date(date).toLocaleString("ru-RU", {
+    dateStyle: "short",
+  });
+};
+
+export const getRusDateMessage = (date: string) => {
+  return new Date(date).toLocaleString("ru-RU", {
     timeStyle: "short",
   });
 };
@@ -99,6 +112,9 @@ export const getUniqueRooms = (
   });
   return Array.from(uniqueRooms);
 };
+
+export const getSessionItem = (item: SessionStorageEnum) =>
+  sessionStorage.getItem(item);
 
 export const roomsCopyArr = (rooms: string[]): string[] =>
   JSON.parse(JSON.stringify(rooms));

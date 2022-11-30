@@ -9,7 +9,7 @@ const MessageContainerSC = styled("div")<{ isMyMessage: boolean }>`
 `;
 
 const MessageSC = styled("p")<{ isMyMessage: boolean }>`
-  max-width: 600px;
+  max-width: 75%;
   padding: 15px 23px 15px 33px;
   background-color: ${({ isMyMessage }) =>
     isMyMessage ? "#A0D4EC" : "#EEF4F7"};
