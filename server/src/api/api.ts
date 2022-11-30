@@ -1,3 +1,4 @@
+import { Room, Message, User } from './../models/ModelsChat';
 import { SECRET_KEY } from './../constants/constants';
 import { Request, Response } from 'express';
 import * as CryptoJS from "crypto-js"
@@ -42,6 +43,34 @@ export const apiAdminAuth = async (req: Request, res: Response) => {
 
       if (isAdmin) {
         return api(200, {isAuth: true})
+      }
+
+    } catch {}
+  }
+
+  export const apiAdminChat = async (req: Request, res: Response) => {
+    const api = apiResponse(res);
+    try {
+      const {email, password, id: adminId} = req.body;
+      const { id: roomId } = req.params
+  
+      //! error body
+      if (!email || !password || !adminId ) {
+        return api(400, {msg: "Ошибка тела запроса"})
+      }
+      
+      const isAdmin = await checkAdminSession(res, email, password);
+
+      if (isAdmin) {
+        const room = await Room.findOne({where: {id:roomId}, include: [{model: Message, limit: 0}, {model: User}]})
+        if (room) {
+          return api(200, room.dataValues)
+        } else {
+        return api(400, {msg: "Ошибка получения комнаты"})
+        }
+      } else {
+        return api(400, {msg: "Ошибка авторизации"})
+     
       }
 
     } catch {}

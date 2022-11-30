@@ -21,11 +21,18 @@ export const socketConnection = (io: Server) => {
             socket.disconnect();
         }
 
+        //? USER - CURRENT ROOM
+
         //! connect room user
         socket.on("user connect room", () => {
             console.log("user join room");
             socket.join(roomName)
         })
+
+        //? USER - CURRENT ROOM
+
+ 
+        //? ADMIN - ALL ROOM
         
         //! admin connect all rooms
         socket.on("connect all rooms", () => {
@@ -34,10 +41,24 @@ export const socketConnection = (io: Server) => {
 
         //! admin leave all room
         socket.on("admin leave all room", () => {
-            //! reopen browser tab
+            //! re-open browser tab
             socket.leave(SOCKET_ADMIN_ALL_ROOMS);
             socket.join(SOCKET_ADMIN_ALL_ROOMS)
         })
+
+        //? ADMIN - ALL ROOM
+        
+
+        //? ADMIN - CURRENT ROOM
+
+        //! admin connect to current room
+        socket.on("connect current rooms", (data) => {
+            console.log(data)
+            // socket.join(roomName)
+        })
+
+        //? ADMIN - CURRENT ROOM
+        
 
         //! MAIN LOGIC
         try {
@@ -120,6 +141,7 @@ export const socketConnection = (io: Server) => {
                 //* ADMIN
                 if (role === "admin") {
 
+                    console.log(`${role}: ${userId} connected to room ${servicesId}`)
                     //! error body
                     if (!email || !password) {
                         errorEmit(errorMsg.error)

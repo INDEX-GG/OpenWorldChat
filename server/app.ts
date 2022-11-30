@@ -7,7 +7,7 @@ import SequelizeChat from "./src/db/dbChat";
 import SequelizeMain from "./src/db/dbMain";
 import { PORT } from "./src/constants/constants";
 import { socketConnection } from "./src/services/socketServices";
-import {apiAdminAuth} from './src/api/api';
+import {apiAdminAuth, apiAdminChat} from './src/api/api';
 
 //? app
 export const app = express();
@@ -32,6 +32,7 @@ const io = new Server(server, {
 
 //! admin login
 app.post("/login", apiAdminAuth);
+app.post("/chat/:id", apiAdminChat);
 
 //! socket connect
 io.on("connection", socketConnection(io));
