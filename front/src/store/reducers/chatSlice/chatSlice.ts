@@ -27,7 +27,6 @@ export const chatSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchChatId.fulfilled, (state, action) => {
-      state.isLoading = false;
       state.room = action.payload as IRoomModel;
     });
     builder.addCase(fetchChatId.rejected, (state, action) => {
