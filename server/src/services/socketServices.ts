@@ -1,4 +1,3 @@
-import { SOCKET_ADMIN_ALL_ROOMS } from './../constants/constants';
 import { ErrorEmitFuncType } from './../types/types';
 import {Server, Socket} from "socket.io";
 import { findRooms, getSendMessage } from "./services";
@@ -114,14 +113,14 @@ export const socketConnection = (io: Server) => {
                     //? ADMIN - ALL ROOM
                     //! admin connect all rooms
                     socket.on("admin connect all rooms", () => {
-                        socket.join(SOCKET_ADMIN_ALL_ROOMS)
+                        socket.join(roomName)
                     })
 
                     //! admin leave all room
                     socket.on("admin leave all room", () => {
                         //! re-open browser tab
-                        socket.leave(SOCKET_ADMIN_ALL_ROOMS);
-                        socket.join(SOCKET_ADMIN_ALL_ROOMS)
+                        socket.leave(roomName);
+                        socket.join(roomName)
                     })
                     //? ADMIN - ALL ROOM
                     
@@ -152,7 +151,7 @@ export const socketConnection = (io: Server) => {
                     }
 
                     if (isConfirm) {
-                        io.to(SOCKET_ADMIN_ALL_ROOMS).emit("admin confirm")
+                        io.to(roomName).emit("admin confirm")
                     }
 
                     //! all rooms
