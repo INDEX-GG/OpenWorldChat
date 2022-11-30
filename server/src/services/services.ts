@@ -5,7 +5,7 @@ import { IMessageModel } from "../types/IMessageModel";
 import {User, Room, Message, Admin} from '../models/ModelsChat';
 import { ErrorEmitFuncType, RoomConnectType } from '../types/types';
 import { errorMsg } from "../constants/error";
-import {SOCKET_ADMIN_ALL_ROOMS} from '../constants/constants';
+import {ADMIN_ALL_ROOM_NAME} from '../constants/constants';
 import * as bcrypt from 'bcrypt';
 import {decryptedData} from '../api/api';
 import { Console } from 'console';
@@ -147,7 +147,7 @@ const createMessage = async (
         //! get current room
         const room = await Room.findOne({where: {id: roomInfo.id}, include: [{model: Message, limit: 0}, {model: User}]})
         //! emit frontend admin chat (website)
-        io.in(SOCKET_ADMIN_ALL_ROOMS).emit("message get admin", room);
+        io.in(ADMIN_ALL_ROOM_NAME).emit("message get admin", room);
         
         return true;
     } catch(e) {
@@ -224,7 +224,7 @@ export const getAllRooms = async (
             include: [{model: Message, limit: 0}, {model: User}],
         })
         
-        io.in(SOCKET_ADMIN_ALL_ROOMS).emit("admin get all rooms", allRooms.rows)
+        io.in(ADMIN_ALL_ROOM_NAME).emit("admin get all rooms", allRooms.rows)
     } catch(e) {
         errorEmit(errorMsg.rooms)
     }
