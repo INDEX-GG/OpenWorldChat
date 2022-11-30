@@ -6,7 +6,7 @@ import { IRoomModel } from "lib/models/IRoomModel";
 import SpinnerUI from "UI/SpinnerUI/SpinnerUI";
 
 const ChatMessages = ({ messages }: Pick<IRoomModel, "messages">) => {
-  const { containerRef, isContainerScroll } = useChatMessages();
+  const { containerRef, isContainerScroll } = useChatMessages(messages);
   return (
     <>
       <MainSC ref={containerRef}>

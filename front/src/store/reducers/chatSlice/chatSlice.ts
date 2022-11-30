@@ -4,6 +4,7 @@ import { RootState } from "store/store";
 import { RootReducerNameSpace } from "store/rootReducer";
 import { IStatusModel } from "lib/models/IStatusModel";
 import { fetchChatId } from "store/reducers/chatSlice/asyncThunk/chatThunk";
+import { IMessageModel } from "lib/models/IMessageModel";
 
 interface IInitialState extends IStatusModel {
   room: IRoomModel | null;
@@ -19,11 +20,19 @@ export const chatSlice = createSlice({
   name: "chatSlice",
   initialState,
   reducers: {
+    chatReset: () => initialState,
     chatConnect(state, action: PayloadAction<IStatusModel>) {
       state.isLoading = action.payload.isLoading;
       state.hasError = action.payload.hasError;
     },
-    chatReset: () => initialState,
+    chatAddMessage(state, action: PayloadAction<IMessageModel>) {
+      if (state.room) {
+        state.room = {
+          ...state.room,
+          messages: [...state.room.messages, action.payload],
+        };
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchChatId.fulfilled, (state, action) => {
@@ -41,7 +50,7 @@ export const chatSlice = createSlice({
   },
 });
 
-export const { chatConnect, chatReset } = chatSlice.actions;
+export const { chatConnect, chatReset, chatAddMessage } = chatSlice.actions;
 
 const selectChatSlice = (state: RootState) => state[RootReducerNameSpace.CHAT];
 export const selectChat = (state: RootState) => selectChatSlice(state);
