@@ -15,6 +15,7 @@ export const socketConnection = (io: Server) => {
 
         //? handle error emit
         const errorEmit: ErrorEmitFuncType = (msg: string) => {
+            console.log(roomName, msg);
             io.in(roomName).emit("error", msg)
             socket.leave(roomName);
             socket.disconnect();
@@ -127,8 +128,7 @@ export const socketConnection = (io: Server) => {
 
                     //? ADMIN - CURRENT ROOM
                     //! admin connect to current room
-                    socket.on("admin connect current rooms", (data) => {
-                        console.log(data)
+                    socket.on("admin connect current rooms", () => {
                         socket.join(roomName)
                     })
                     //? ADMIN - CURRENT ROOM

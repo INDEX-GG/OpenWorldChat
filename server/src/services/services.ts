@@ -142,7 +142,7 @@ const createMessage = async (
         await message.save();
 
         //! emit frontend user chat (mobile)
-        io.in(roomName).emit("message save", message.dataValues);
+        io.to(roomName).to(`room:admin/${roomInfo.id}`).emit("message save", message.dataValues);
 
         //! get current room
         const room = await Room.findOne({where: {id: roomInfo.id}, include: [{model: Message, limit: 0}, {model: User}]})
