@@ -6,16 +6,13 @@ import { useAppDispatch } from "hooks/store/useStore";
 import {
   roomsAddChatInRooms,
   roomsChangeStatusRoom,
-  roomsDataSlice,
-  roomsLoadingSlice,
 } from "store/reducers/roomsSlice/roomsSlice";
 
 export const useRoomIdPage = () => {
-  // const [socketState, setSocketState] = useState<Socket | null>(null);
   const params = useParams();
+  const dispatch = useAppDispatch();
   const { room, isLoading, handleGetCurrentChatInfo, handleResetChat } =
     useChatStore();
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (params) {
@@ -31,8 +28,8 @@ export const useRoomIdPage = () => {
 
   useEffect(() => {
     if (!isLoading && room && room.id) {
-      const responseChatInRoom = dispatch(roomsAddChatInRooms([room]));
-      if (responseChatInRoom.payload) dispatch(roomsChangeStatusRoom(room.id));
+      dispatch(roomsAddChatInRooms([room]));
+      dispatch(roomsChangeStatusRoom(room.id));
     }
   }, [isLoading, room]);
 

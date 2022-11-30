@@ -44,8 +44,6 @@ const Rooms = () => {
     [hasError, isLoading, isEnd],
   );
 
-  console.log(isGetRoomsComponent);
-
   return (
     <>
       {isListComponent && <RoomsList data={rooms} />}

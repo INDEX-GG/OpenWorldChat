@@ -13,7 +13,7 @@ const ChatList = ({ messages }: IChatListProps) => {
       {messages.map((messageItem, index) => (
         <>
           <ChatMessageDate
-            key={messageItem.id}
+            key={messageItem.createdAt + index}
             currentMessage={messageItem}
             prevMessage={messages[index - 1]}
           />
