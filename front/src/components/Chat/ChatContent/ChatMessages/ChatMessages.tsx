@@ -3,15 +3,23 @@ import { useChatMessages } from "components/Chat/ChatContent/ChatMessages/useCha
 import ChatList from "components/Chat/ChatContent/ChatMessages/ChatList/ChatList";
 import { useChatMessagesStyles } from "components/Chat/ChatContent/ChatMessages/styles";
 import { IRoomModel } from "lib/models/IRoomModel";
+import SpinnerUI from "UI/SpinnerUI/SpinnerUI";
 
 const ChatMessages = ({ messages }: Pick<IRoomModel, "messages">) => {
-  const { containerRef } = useChatMessages();
+  const { containerRef, isContainerScroll } = useChatMessages();
   return (
-    <MainSC ref={containerRef}>
-      <ChatList messages={messages} />
-    </MainSC>
+    <>
+      <MainSC ref={containerRef}>
+        <ChatList messages={messages} />
+      </MainSC>
+      {!isContainerScroll && (
+        <ScrollingLoadingSC>
+          <SpinnerUI size={70} />
+        </ScrollingLoadingSC>
+      )}
+    </>
   );
 };
 
-const { MainSC } = useChatMessagesStyles();
+const { MainSC, ScrollingLoadingSC } = useChatMessagesStyles();
 export default React.memo(ChatMessages);

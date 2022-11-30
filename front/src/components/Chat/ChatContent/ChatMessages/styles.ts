@@ -7,8 +7,21 @@ const MainSC = styled("main")`
   overflow-y: scroll;
   display: flex;
   flex-direction: column;
+  position: relative;
+`;
+
+const ScrollingLoadingSC = styled("div")`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background-color: #ffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const useChatMessagesStyles = () => ({
   MainSC,
+  ScrollingLoadingSC,
 });

@@ -44,6 +44,25 @@ export const roomsSlice = createSlice({
       state.isLoading = false;
       state.hasError = action.payload;
     },
+    roomsChangeStatusRoom(state, action: PayloadAction<number>) {
+      //! эффект прочитанного
+      const newRoom = roomsCopyArr(state.rooms).map((item) => {
+        const parsedRoom = JSON.parse(item) as IChatRoom;
+        //! new room status
+        const status =
+          parsedRoom.room.id === action.payload ? 1 : parsedRoom.status;
+
+        return JSON.stringify({
+          ...JSON.parse(item),
+          status: status,
+        } as IChatRoom);
+      });
+
+      state.rooms = newRoom;
+    },
+    roomsAddChatInRooms(state, action: PayloadAction<IRoomModel[]>) {
+      state.rooms = getUniqueRooms(roomsCopyArr(state.rooms), action.payload);
+    },
     roomsDataSlice(state, action: PayloadAction<IRoomModel[]>) {
       state.rooms = getUniqueRooms(roomsCopyArr(state.rooms), action.payload);
       state.isLoading = false;
@@ -64,7 +83,16 @@ export const roomsSlice = createSlice({
           });
         }
 
-        const newRoom = JSON.stringify({ room: action.payload, status: 2 });
+        //! current room /:id
+        const isCurrentRoom =
+          action.payload.id === +(window.location.pathname[1] || 0);
+
+        //! status: 1 (без подсветки сообщения)
+        //! status: 2 (с подсветкой сообщения)
+        const newRoom = JSON.stringify({
+          room: action.payload,
+          status: isCurrentRoom ? 1 : 2,
+        });
 
         if (roomIndex >= 0) {
           const beforeRooms = JSON.parse(JSON.stringify(copyRooms));
@@ -92,7 +120,9 @@ export const {
   roomsErrorSlice,
   roomsChangePage,
   changeMessageInRoom,
+  roomsChangeStatusRoom,
   roomsChangeSocketConnect,
+  roomsAddChatInRooms,
 } = roomsSlice.actions;
 
 const selectRoomsSlice = (state: RootState) =>
