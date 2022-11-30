@@ -71,7 +71,7 @@ export const useSocketInit = () => {
     //! connect
     socket.on("connect", () => {
       //! connect room
-      socket.emit("connect all rooms");
+      socket.emit("admin connect all rooms");
       dispatch(roomsLoadingSlice());
       dispatch(roomsChangeSocketConnect(true));
     });

@@ -11,9 +11,15 @@ import {
 export const useRoomIdPage = () => {
   const params = useParams();
   const dispatch = useAppDispatch();
-  const { room, isLoading, handleGetCurrentChatInfo, handleResetChat } =
-    useChatStore();
   const [isConnectSocket, setIsConnectSocket] = useState<boolean>(false);
+
+  const {
+    room,
+    isLoading,
+    hasError,
+    handleGetCurrentChatInfo,
+    handleResetChat,
+  } = useChatStore();
 
   //! Main Logic - 1
   //? get room data in db and verify admin
@@ -29,12 +35,12 @@ export const useRoomIdPage = () => {
   //! Main Logic - 2
   //? change store and ready connect to socket
   useEffect(() => {
-    if (isLoading && room && room.id) {
+    if (isLoading && !hasError && room && room.id) {
       dispatch(roomsAddChatInRooms([room]));
       dispatch(roomsChangeStatusRoom(room.id));
       setIsConnectSocket(true);
     }
-  }, [isLoading, room]);
+  }, [isLoading, hasError, room]);
 
   //! Main Logic - 3
   //? connect socket
