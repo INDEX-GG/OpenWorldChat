@@ -10,7 +10,12 @@ import {
   roomsErrorSlice,
   roomsLoadingSlice,
 } from "store/reducers/roomsSlice/roomsSlice";
-import { ADMIN_ID, BASE_URL, PATH_URL } from "lib/constants/constants";
+import {
+  ADMIN_ALL_ROOM_NAME,
+  ADMIN_ID,
+  BASE_URL,
+  PATH_URL,
+} from "lib/constants/constants";
 import { SessionStorageEnum } from "types/types";
 import { IRoomModel } from "lib/models/IRoomModel";
 import { useAuthStore } from "hooks/store/useAuthStore";
@@ -62,7 +67,7 @@ export const useSocketInit = () => {
       query: {
         role: "admin",
         userId: ADMIN_ID,
-        customRoomName: "SOCKET_ADMIN_ALL_ROOMS",
+        customRoomName: ADMIN_ALL_ROOM_NAME,
         email: getSessionItem(SessionStorageEnum.EMAIL),
         password: getSessionItem(SessionStorageEnum.PASSWORD),
       },
