@@ -21,45 +21,6 @@ export const socketConnection = (io: Server) => {
             socket.disconnect();
         }
 
-        //? USER - CURRENT ROOM
-
-        //! connect room user
-        socket.on("user connect room", () => {
-            console.log("user join room");
-            socket.join(roomName)
-        })
-
-        //? USER - CURRENT ROOM
-
- 
-        //? ADMIN - ALL ROOM
-        
-        //! admin connect all rooms
-        socket.on("connect all rooms", () => {
-            socket.join(SOCKET_ADMIN_ALL_ROOMS)
-        })
-
-        //! admin leave all room
-        socket.on("admin leave all room", () => {
-            //! re-open browser tab
-            socket.leave(SOCKET_ADMIN_ALL_ROOMS);
-            socket.join(SOCKET_ADMIN_ALL_ROOMS)
-        })
-
-        //? ADMIN - ALL ROOM
-        
-
-        //? ADMIN - CURRENT ROOM
-
-        //! admin connect to current room
-        socket.on("connect current rooms", (data) => {
-            console.log(data)
-            // socket.join(roomName)
-        })
-
-        //? ADMIN - CURRENT ROOM
-        
-
         //! MAIN LOGIC
         try {
 
@@ -68,7 +29,6 @@ export const socketConnection = (io: Server) => {
                 errorEmit(errorMsg.error)
                 return;
             }
-
 
             //! check role
             if (role === "admin" || role === "user") {
@@ -81,6 +41,15 @@ export const socketConnection = (io: Server) => {
                     //? query body
                     const { authToken, servicesId, services_name} = querySocket as unknown as RoomConnectType;
                     console.log(`${role}: ${userId} connected to room ${servicesId}`)
+
+
+                    //? USER - CURRENT ROOM
+                    //! connect room user
+                    socket.on("user connect room", () => {
+                        console.log("user join room");
+                        socket.join(roomName)
+                    })
+                    //? USER - CURRENT ROOM
 
 
                     //! forced disconnect
@@ -141,7 +110,31 @@ export const socketConnection = (io: Server) => {
                 //* ADMIN
                 if (role === "admin") {
 
-                    console.log(`${role}: ${userId} connected to room ${servicesId}`)
+
+                    //? ADMIN - ALL ROOM
+                    //! admin connect all rooms
+                    socket.on("admin connect all rooms", () => {
+                        socket.join(SOCKET_ADMIN_ALL_ROOMS)
+                    })
+
+                    //! admin leave all room
+                    socket.on("admin leave all room", () => {
+                        //! re-open browser tab
+                        socket.leave(SOCKET_ADMIN_ALL_ROOMS);
+                        socket.join(SOCKET_ADMIN_ALL_ROOMS)
+                    })
+                    //? ADMIN - ALL ROOM
+                    
+
+                    //? ADMIN - CURRENT ROOM
+                    //! admin connect to current room
+                    socket.on("admin connect current rooms", (data) => {
+                        console.log(data)
+                        socket.join(roomName)
+                    })
+                    //? ADMIN - CURRENT ROOM
+
+
                     //! error body
                     if (!email || !password) {
                         errorEmit(errorMsg.error)
