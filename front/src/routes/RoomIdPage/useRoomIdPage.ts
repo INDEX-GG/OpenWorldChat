@@ -7,15 +7,15 @@ import {
   roomsAddChatInRooms,
   roomsChangeStatusRoom,
 } from "store/reducers/roomsSlice/roomsSlice";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 import { getSessionItem } from "lib/services/services";
-import { SessionStorageEnum } from "types/types";
+import { SessionStorageEnum, SocketType } from "types/types";
 import { IMessageModel } from "lib/models/IMessageModel";
 
 export const useRoomIdPage = () => {
   const params = useParams();
   const dispatch = useAppDispatch();
-  const [socketState, setSocketState] = useState<Socket | null>(null);
+  const [socketState, setSocketState] = useState<SocketType>(null);
   const [isConnectSocket, setIsConnectSocket] = useState<boolean>(false);
 
   const {

@@ -2,10 +2,11 @@ import React from "react";
 import { useStylesChatSend } from "components/Chat/ChatContent/ChatSend/styles";
 import SendIcon from "assets/icons/Send/SendIcon";
 import { useChatSend } from "components/Chat/ChatContent/ChatSend/useChatSend";
+import { ISocketProps } from "types/types";
 
-const ChatSend = () => {
+const ChatSend = ({ socketState }: ISocketProps) => {
   const { value, handleChangeValue, handleKeyDown, handleDisableNativeForm } =
-    useChatSend();
+    useChatSend(socketState);
 
   return (
     <FooterSC>

@@ -5,7 +5,7 @@ import ChatMessages from "components/Chat/ChatContent/ChatMessages/ChatMessages"
 import ChatSend from "components/Chat/ChatContent/ChatSend/ChatSend";
 import { IChatContent } from "components/Chat/ChatContent/types";
 
-const ChatContent = ({ room }: IChatContent) => {
+const ChatContent = ({ room, socketState }: IChatContent) => {
   const { user, messages } = room;
 
   return (
@@ -17,7 +17,7 @@ const ChatContent = ({ room }: IChatContent) => {
         email={user.email}
       />
       <ChatMessages messages={messages} />
-      <ChatSend />
+      <ChatSend socketState={socketState} />
     </ContainerSC>
   );
 };

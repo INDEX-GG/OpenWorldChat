@@ -1,6 +1,6 @@
 import { useRoomsStore } from "hooks/store/useRoomsStore";
 import { useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 import { useAppDispatch } from "hooks/store/useStore";
 import {
   changeMessageInRoom,
@@ -17,7 +17,7 @@ import {
   BASE_URL,
   PATH_URL,
 } from "lib/constants/constants";
-import { SessionStorageEnum } from "types/types";
+import { SessionStorageEnum, SocketType } from "types/types";
 import { IRoomModel } from "lib/models/IRoomModel";
 import { useAuthStore } from "hooks/store/useAuthStore";
 import { getSessionItem } from "lib/services/services";
@@ -35,7 +35,7 @@ export const useSocketInit = () => {
 
   const { isAuth } = useAuthStore();
 
-  const [socketState, setSocketState] = useState<Socket | null>(null);
+  const [socketState, setSocketState] = useState<SocketType>(null);
   const dispatch = useAppDispatch();
 
   const handleGetRooms = (socket = socketState) => {

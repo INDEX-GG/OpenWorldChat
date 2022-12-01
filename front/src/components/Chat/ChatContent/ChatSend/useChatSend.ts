@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, KeyboardEvent, useState } from "react";
+import { SocketType } from "types/types";
 
-export const useChatSend = () => {
+export const useChatSend = (socketState: SocketType) => {
   const [value, setValue] = useState<string>("");
 
   const handleChangeValue = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -25,6 +26,7 @@ export const useChatSend = () => {
   const onSubmit = () => {
     if (value.trim().length) {
       console.log(value);
+      console.log(socketState);
     }
   };
 
