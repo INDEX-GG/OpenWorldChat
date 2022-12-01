@@ -128,7 +128,7 @@ const createRoom = async (
     }
 }
 
-const updateRoomsInAllRooms = async (io: Server, roomId: number) => {
+const updateRoomInAllRooms = async (io: Server, roomId: number) => {
     //! update current room in admin
     const room = await Room.findOne({where: {id: roomId}, include: [{model: Message, limit: 0}, {model: User}]})
     //! emit frontend admin chat (website)
@@ -156,7 +156,7 @@ const createMessage = async (
           .emit("message save", message.dataValues);
 
         //! update current room in all rooms socket (admin
-        await updateRoomsInAllRooms(io, roomInfo.id)
+        await updateRoomInAllRooms(io, roomInfo.id)
         
         return true;
     } catch(e) {
@@ -185,7 +185,7 @@ export const getSendMessageAdmin = (
               .emit("admin message save", newMessage.dataValues);
 
             //! update current room in all rooms socket (admin
-            await updateRoomsInAllRooms(io, data.roomId)
+            await updateRoomInAllRooms(io, data.roomId)
 
         } catch(e) {
             errorEmit(errorMsg.message)
