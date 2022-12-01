@@ -1,8 +1,11 @@
 import { ChangeEvent, FormEvent, KeyboardEvent, useState } from "react";
-import { SocketType } from "types/types";
+import { AdminNewMessageType, SocketType } from "types/types";
+import { useChatStore } from "hooks/store/useChatStore";
+import { ADMIN_ID } from "lib/constants/constants";
 
 export const useChatSend = (socketState: SocketType) => {
   const [value, setValue] = useState<string>("");
+  const { room } = useChatStore();
 
   const handleChangeValue = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -24,9 +27,17 @@ export const useChatSend = (socketState: SocketType) => {
   };
 
   const onSubmit = () => {
-    if (value.trim().length) {
-      console.log(value);
-      console.log(socketState);
+    if (value.trim().length && socketState && room) {
+      const messageInfo: AdminNewMessageType = {
+        roomId: room.id,
+        adminId: ADMIN_ID,
+        servicesId: room.servicesId,
+        userId: +room.userId,
+        message: value,
+      };
+
+      socketState.emit("admin send message", messageInfo);
+      setValue("");
     }
   };
 

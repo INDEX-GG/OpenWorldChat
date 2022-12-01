@@ -22,3 +22,11 @@ export type SocketType = Socket | null;
 export interface ISocketProps {
   socketState: SocketType;
 }
+
+export type AdminNewMessageType = {
+  roomId: number;
+  userId: number;
+  adminId: number;
+  message: string;
+  servicesId: number;
+};

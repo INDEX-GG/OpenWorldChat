@@ -4,7 +4,7 @@ import ChatLoading from "components/Chat/ChatLoading/ChatLoading";
 import ChatError from "components/Chat/ChatError/ChatError";
 import ChatContent from "components/Chat/ChatContent/ChatContent";
 import { IRoomModel } from "lib/models/IRoomModel";
-import { ISocketProps, SocketType } from "types/types";
+import { ISocketProps } from "types/types";
 
 const Chat = ({ socketState }: ISocketProps) => {
   const { room, isLoading, hasError, handleGetCurrentChatInfo } =

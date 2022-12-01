@@ -100,8 +100,13 @@ export const useRoomIdPage = () => {
       //! error
       socket.on("error", handleError);
 
-      //! new message
+      //! new message from user
       socket.on("message save", (message: IMessageModel) => {
+        handleAddNewMessage(message);
+      });
+
+      //! success save new message admin
+      socket.on("admin message save", (message: IMessageModel) => {
         handleAddNewMessage(message);
       });
 
