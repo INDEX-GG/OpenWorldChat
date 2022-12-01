@@ -3,12 +3,11 @@ import { styled } from "@mui/material";
 import ButtonUI from "UI/ButtonUI/ButtonUI";
 
 interface IRoomsError {
-  isEnd: boolean;
   error: string;
   handleSocketConnect: () => void;
 }
 
-const RoomsError = ({ error, isEnd, handleSocketConnect }: IRoomsError) => {
+const RoomsError = ({ error, handleSocketConnect }: IRoomsError) => {
   const onClick = () => {
     handleSocketConnect();
   };
@@ -16,7 +15,7 @@ const RoomsError = ({ error, isEnd, handleSocketConnect }: IRoomsError) => {
   return (
     <ErrorContainerSC>
       <ErrorParagraphSC>{error}</ErrorParagraphSC>
-      {!isEnd && <ButtonUI onClick={onClick}>Повторная загрузка</ButtonUI>}
+      <ButtonUI onClick={onClick}>Повторная загрузка</ButtonUI>
     </ErrorContainerSC>
   );
 };

@@ -52,7 +52,6 @@ const Rooms = () => {
           {isLoadingComponent && <SpinnerUI />}
           {isErrorComponent && (
             <RoomsError
-              isEnd={isEnd}
               error={hasError}
               handleSocketConnect={handleSocketConnect}
             />

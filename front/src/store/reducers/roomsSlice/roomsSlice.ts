@@ -4,8 +4,9 @@ import { RootState } from "store/store";
 import { RootReducerNameSpace } from "store/rootReducer";
 import { IStatusModel } from "lib/models/IStatusModel";
 import { getUniqueRooms, roomsCopyArr } from "lib/services/services";
+import { IS_DEV } from "lib/constants/constants";
 
-const pageLimit = 1;
+const pageLimit = IS_DEV ? 1 : 50;
 
 interface IInitialState extends IStatusModel {
   rooms: string[];
