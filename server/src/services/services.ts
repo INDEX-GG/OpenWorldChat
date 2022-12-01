@@ -128,6 +128,13 @@ const createRoom = async (
     }
 }
 
+const updateRoomsInAllRooms = async (io: Server, roomId: number) => {
+    //! update current room in admin
+    const room = await Room.findOne({where: {id: roomId}, include: [{model: Message, limit: 0}, {model: User}]})
+    //! emit frontend admin chat (website)
+    io.in(ADMIN_ALL_ROOM_NAME).emit("message get admin", room);
+}
+
 const createMessage = async (
     io: Server, 
     errorEmit: ErrorEmitFuncType,
@@ -148,10 +155,8 @@ const createMessage = async (
           .to(getAdminCurrentRoomName(roomInfo.id))
           .emit("message save", message.dataValues);
 
-        //! get current room
-        const room = await Room.findOne({where: {id: roomInfo.id}, include: [{model: Message, limit: 0}, {model: User}]})
-        //! emit frontend admin chat (website)
-        io.in(ADMIN_ALL_ROOM_NAME).emit("message get admin", room);
+        //! update current room in all rooms socket (admin
+        await updateRoomsInAllRooms(io, roomInfo.id)
         
         return true;
     } catch(e) {
@@ -178,6 +183,9 @@ export const getSendMessageAdmin = (
             io.to(getAdminCurrentRoomName(data.roomId))
               .to(getUserRoomName(data.userId, data.servicesId))
               .emit("admin message save", newMessage.dataValues);
+
+            //! update current room in all rooms socket (admin
+            await updateRoomsInAllRooms(io, data.roomId)
 
         } catch(e) {
             errorEmit(errorMsg.message)
