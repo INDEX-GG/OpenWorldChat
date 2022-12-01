@@ -15,3 +15,11 @@ export type PaginationType = {
 }
 
 export type ErrorEmitFuncType = (message: string) => void;
+
+export type AdminNewMessageType = {
+    roomId: number, 
+    userId: number, 
+    adminId: number, 
+    message: string
+    servicesId: number,
+}

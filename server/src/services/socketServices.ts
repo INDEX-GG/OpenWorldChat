@@ -2,7 +2,7 @@ import { ErrorEmitFuncType } from './../types/types';
 import {Server, Socket} from "socket.io";
 import { findRooms, getSendMessage } from "./services";
 import {RoomConnectType, PaginationType} from '../types/types';
-import {checkUserAuth, confirmAdminSession, getAllRooms} from './services';
+import {checkUserAuth, confirmAdminSession, getAllRooms, getSendMessageAdmin, getUserRoomName} from './services';
 import { errorMsg } from "../constants/error";
 
 
@@ -11,7 +11,7 @@ export const socketConnection = (io: Server) => {
         //? query body
         const querySocket = socket.handshake.query;
         const { userId, role, servicesId, customRoomName, email, password} = querySocket as unknown as RoomConnectType;
-        const roomName = customRoomName || `room:userId=${userId}/servicesId=${servicesId}`;
+        const roomName = customRoomName || getUserRoomName(userId, servicesId);
 
         //? handle error emit
         const errorEmit: ErrorEmitFuncType = (msg: string) => {
@@ -103,8 +103,6 @@ export const socketConnection = (io: Server) => {
                             room
                         )
                     )
-                } else {
-
                 }
 
                 //* ADMIN
@@ -159,7 +157,8 @@ export const socketConnection = (io: Server) => {
                         getAllRooms(io, errorEmit, page, pageLimit)
                     })
 
-                    return;
+                    //! admin send message
+                    socket.on("admin send message", getSendMessageAdmin(io, errorEmit))
                 }
 
             } else {

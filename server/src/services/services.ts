@@ -3,12 +3,14 @@ import { Server } from 'socket.io';
 import {UserTokensAll, UserTokensBlackList} from "../models/ModelsMain";
 import { IMessageModel } from "../types/IMessageModel";
 import {User, Room, Message, Admin} from '../models/ModelsChat';
-import { ErrorEmitFuncType, RoomConnectType } from '../types/types';
+import {ErrorEmitFuncType, RoomConnectType, AdminNewMessageType} from '../types/types';
 import { errorMsg } from "../constants/error";
 import {ADMIN_ALL_ROOM_NAME} from '../constants/constants';
 import * as bcrypt from 'bcrypt';
 import {decryptedData} from '../api/api';
-import { Console } from 'console';
+
+export const getUserRoomName = (userId: number, servicesId?: number) => `room:userId=${userId}/servicesId=${servicesId}`
+export const getAdminCurrentRoomName = (roomId: number) => `room:admin/${roomId}`;
 
 export const confirmAdminSession = async (email: string, password: string) => {
     try {
@@ -141,8 +143,10 @@ const createMessage = async (
         })
         await message.save();
 
-        //! emit frontend user chat (mobile)
-        io.to(roomName).to(`room:admin/${roomInfo.id}`).emit("message save", message.dataValues);
+        //! emit frontend user chat (mobile) and admin chat (web)
+        io.to(roomName)
+          .to(getAdminCurrentRoomName(roomInfo.id))
+          .emit("message save", message.dataValues);
 
         //! get current room
         const room = await Room.findOne({where: {id: roomInfo.id}, include: [{model: Message, limit: 0}, {model: User}]})
@@ -151,11 +155,36 @@ const createMessage = async (
         
         return true;
     } catch(e) {
-        console.log(e);
         errorEmit(errorMsg.message);
         return false;
     }
 }
+
+export const getSendMessageAdmin = (
+    io: Server, 
+    errorEmit: ErrorEmitFuncType, 
+) => {
+    return async (data: AdminNewMessageType) => {
+        try {
+            const newMessage = await Message.create({
+                roomId: data.roomId,
+                text: data.message,
+                senderId: data.adminId,
+            })
+
+            newMessage.save();
+
+            //! emit frontend and mobile
+            io.to(getAdminCurrentRoomName(data.roomId))
+              .to(getUserRoomName(data.userId, data.servicesId))
+              .emit("admin message save", newMessage.dataValues);
+
+        } catch(e) {
+            errorEmit(errorMsg.message)
+        }
+    }
+}
+
 
 
 //? event send message
@@ -209,7 +238,6 @@ export const getSendMessage = (
         }
     }
 }
-
 
 export const getAllRooms = async (
     io: Server, 
