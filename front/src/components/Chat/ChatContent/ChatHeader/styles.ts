@@ -1,12 +1,21 @@
 import { styled } from "@mui/material";
 
 const HeaderSC = styled("header")`
-  padding: 27px 36px 23px;
+  padding: 27px 36px 20px;
   border-bottom: 2px solid #ccdde2;
+`;
+
+const ServiceNameSC = styled("h3")`
+  font-size: 14px;
+  line-height: 18px;
+`;
+
+const UserContainerSC = styled("div")`
   display: flex;
   align-items: center;
-  margin: 0;
+  margin-bottom: 10px;
 `;
+
 const NameSC = styled("h1")`
   font-weight: 600;
   font-size: 16px;
@@ -24,4 +33,6 @@ export const useChatHeaderStyles = () => ({
   HeaderSC,
   NameSC,
   EmailSC,
+  ServiceNameSC,
+  UserContainerSC,
 });

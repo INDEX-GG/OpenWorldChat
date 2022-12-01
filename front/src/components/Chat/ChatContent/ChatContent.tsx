@@ -6,16 +6,11 @@ import ChatSend from "components/Chat/ChatContent/ChatSend/ChatSend";
 import { IChatContent } from "components/Chat/ChatContent/types";
 
 const ChatContent = ({ room, socketState }: IChatContent) => {
-  const { user, messages } = room;
+  const { user, messages, servicesName } = room;
 
   return (
     <ContainerSC>
-      <ChatHeader
-        name={user.name}
-        lastname={user.lastname}
-        patronymic={user.patronymic}
-        email={user.email}
-      />
+      <ChatHeader user={user} servicesName={servicesName} />
       <ChatMessages messages={messages} />
       <ChatSend socketState={socketState} />
     </ContainerSC>

@@ -2,24 +2,30 @@ import React, { useMemo } from "react";
 import { useChatHeaderStyles } from "components/Chat/ChatContent/ChatHeader/styles";
 import { IRoomModel } from "lib/models/IRoomModel";
 
-type UserType = Pick<IRoomModel, "user">["user"];
-type ChatHeader = Pick<UserType, "name" | "lastname" | "patronymic" | "email">;
+type ChatHeader = Pick<IRoomModel, "user" | "servicesName">;
 
-const ChatHeader = ({ name, email, lastname, patronymic }: ChatHeader) => {
+const ChatHeader = ({ user, servicesName }: ChatHeader) => {
+  const { name, email, lastname, patronymic } = user;
+
   const userFIO = useMemo(() => {
     if (name || email || patronymic) {
       return `${name || ""} ${lastname || ""} ${patronymic || ""}`.trim();
     }
     return false;
   }, [name, lastname, patronymic, email]);
+
   return (
     <HeaderSC>
-      {userFIO && <NameSC>{userFIO}</NameSC>}
-      <EmailSC isMain={!userFIO}>{email}</EmailSC>
+      <UserContainerSC>
+        {userFIO && <NameSC>{userFIO}</NameSC>}
+        <EmailSC isMain={!userFIO}>{email}</EmailSC>
+      </UserContainerSC>
+      <ServiceNameSC>{servicesName.replace(/->/gi, "/")}</ServiceNameSC>
     </HeaderSC>
   );
 };
 
-const { HeaderSC, NameSC, EmailSC } = useChatHeaderStyles();
+const { HeaderSC, NameSC, EmailSC, ServiceNameSC, UserContainerSC } =
+  useChatHeaderStyles();
 
 export default React.memo(ChatHeader);
