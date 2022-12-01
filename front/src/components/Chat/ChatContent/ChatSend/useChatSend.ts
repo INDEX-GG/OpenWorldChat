@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, KeyboardEvent, useState } from "react";
 
 export const useChatSend = () => {
   const [value, setValue] = useState<string>("");
@@ -10,14 +10,29 @@ export const useChatSend = () => {
     }
   };
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onSubmit();
+    }
+  };
+
+  const handleDisableNativeForm = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(value);
+    onSubmit();
+  };
+
+  const onSubmit = () => {
+    if (value.trim().length) {
+      console.log(value);
+    }
   };
 
   return {
     value,
     onSubmit,
+    handleKeyDown,
     handleChangeValue,
+    handleDisableNativeForm,
   };
 };

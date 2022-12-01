@@ -4,17 +4,19 @@ import SendIcon from "assets/icons/Send/SendIcon";
 import { useChatSend } from "components/Chat/ChatContent/ChatSend/useChatSend";
 
 const ChatSend = () => {
-  const { value, handleChangeValue, onSubmit } = useChatSend();
+  const { value, handleChangeValue, handleKeyDown, handleDisableNativeForm } =
+    useChatSend();
 
   return (
     <FooterSC>
-      <FormSC onSubmit={onSubmit}>
+      <FormSC onSubmit={handleDisableNativeForm}>
         <TextAreaContainerSC>
           <TextAreaSC
             multiline
             maxRows={5}
             fullWidth
             value={value}
+            onKeyDown={handleKeyDown}
             onChange={handleChangeValue}
             error={value.length > 500}
             placeholder={"Написать сообщение..."}
