@@ -30,6 +30,9 @@ export const roomsSlice = createSlice({
   name: "roomsSlice",
   initialState,
   reducers: {
+    roomChangeLoading(state, action: PayloadAction<boolean>) {
+      state.isLoading = action.payload;
+    },
     roomsChangePage(state) {
       state.page += 1;
       state.isLoading = true;
@@ -120,6 +123,7 @@ export const {
   roomsLoadingSlice,
   roomsErrorSlice,
   roomsChangePage,
+  roomChangeLoading,
   changeMessageInRoom,
   roomsChangeStatusRoom,
   roomsChangeSocketConnect,

@@ -4,6 +4,7 @@ import { io, Socket } from "socket.io-client";
 import { useAppDispatch } from "hooks/store/useStore";
 import {
   changeMessageInRoom,
+  roomChangeLoading,
   roomsChangePage,
   roomsChangeSocketConnect,
   roomsDataSlice,
@@ -38,9 +39,15 @@ export const useSocketInit = () => {
   const dispatch = useAppDispatch();
 
   const handleGetRooms = (socket = socketState) => {
-    //! socket loading
+    //! socket loading and loading more chat rooms
     if (socket && socket.connected && !isEnd) {
       dispatch(roomsChangePage());
+      return;
+    }
+    //! socket end loading when all chat rooms loaded
+    if (socket && socket.connected && isEnd) {
+      dispatch(roomChangeLoading(false));
+      return;
     }
   };
 
