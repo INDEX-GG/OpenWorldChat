@@ -5,8 +5,13 @@ import { useChatSend } from "components/Chat/ChatContent/ChatSend/useChatSend";
 import { ISocketProps } from "types/types";
 
 const ChatSend = ({ socketState }: ISocketProps) => {
-  const { value, handleChangeValue, handleKeyDown, handleDisableNativeForm } =
-    useChatSend(socketState);
+  const {
+    value,
+    isInputMaxLength,
+    handleChangeValue,
+    handleKeyDown,
+    handleDisableNativeForm,
+  } = useChatSend(socketState);
 
   return (
     <FooterSC>
@@ -19,7 +24,7 @@ const ChatSend = ({ socketState }: ISocketProps) => {
             value={value}
             onKeyDown={handleKeyDown}
             onChange={handleChangeValue}
-            error={value.length > 500}
+            error={isInputMaxLength}
             placeholder={"Написать сообщение..."}
           />
         </TextAreaContainerSC>

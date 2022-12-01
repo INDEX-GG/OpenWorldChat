@@ -1,4 +1,10 @@
-import { ChangeEvent, FormEvent, KeyboardEvent, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  KeyboardEvent,
+  useMemo,
+  useState,
+} from "react";
 import { AdminNewMessageType, SocketType } from "types/types";
 import { useChatStore } from "hooks/store/useChatStore";
 import { ADMIN_ID } from "lib/constants/constants";
@@ -6,6 +12,8 @@ import { ADMIN_ID } from "lib/constants/constants";
 export const useChatSend = (socketState: SocketType) => {
   const [value, setValue] = useState<string>("");
   const { room } = useChatStore();
+
+  const isInputMaxLength = useMemo(() => value.length > 500, [value]);
 
   const handleChangeValue = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -27,7 +35,7 @@ export const useChatSend = (socketState: SocketType) => {
   };
 
   const onSubmit = () => {
-    if (value.trim().length && socketState && room) {
+    if (value.trim().length && !isInputMaxLength && socketState && room) {
       const messageInfo: AdminNewMessageType = {
         roomId: room.id,
         adminId: ADMIN_ID,
@@ -45,6 +53,7 @@ export const useChatSend = (socketState: SocketType) => {
     value,
     onSubmit,
     handleKeyDown,
+    isInputMaxLength,
     handleChangeValue,
     handleDisableNativeForm,
   };

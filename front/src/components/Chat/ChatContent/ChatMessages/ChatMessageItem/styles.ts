@@ -8,10 +8,12 @@ const MessageContainerSC = styled("div")<{ isMyMessage: boolean }>`
   align-self: ${({ isMyMessage }) => (isMyMessage ? "flex-end" : "flex-start")};
 `;
 
-const MessageSC = styled("p")<{ isMyMessage: boolean }>`
+const MessageSC = styled("pre")<{ isMyMessage: boolean }>`
   max-width: 75%;
   word-break: break-word;
-  padding: 15px 23px 15px 33px;
+  padding: 15px 23px;
+  font-family: inherit;
+  white-space: pre-wrap;
   background-color: ${({ isMyMessage }) =>
     isMyMessage ? "#A0D4EC" : "#EEF4F7"};
   border-radius: ${({ isMyMessage }) =>
