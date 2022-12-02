@@ -5,7 +5,7 @@ import * as cors from "cors"
 import { Server } from "socket.io";
 import SequelizeChat from "./src/db/dbChat";
 import SequelizeMain from "./src/db/dbMain";
-import { PORT } from "./src/constants/constants";
+import { ALLOWED_HEADERS_CORS, CORS, PORT } from "./src/constants/constants";
 import { socketConnection } from "./src/services/socketServices";
 import {apiAdminAuth, apiAdminChat} from './src/api/api';
 
@@ -13,9 +13,10 @@ import {apiAdminAuth, apiAdminChat} from './src/api/api';
 export const app = express();
 
 app.use(cors({
-  origin: "*",
-  allowedHeaders: "*",
+  origin: CORS,
+  allowedHeaders: ALLOWED_HEADERS_CORS,
 }))
+
 app.use(express.urlencoded())
 app.use(express.json())
 
@@ -26,7 +27,7 @@ const server = http.createServer(app);
 //? socket.io
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: CORS,
   }
 })
 
