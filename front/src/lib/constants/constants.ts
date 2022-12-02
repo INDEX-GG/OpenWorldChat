@@ -10,3 +10,4 @@ export const BASE_URL = IS_DEV
 
 export const PATH_URL = IS_DEV ? "" : process.env.REACT_APP_PATH_URL || "";
 export const API_URL = BASE_URL + PATH_URL;
+export const PATH_URL_FRONTEND = process.env.REACT_APP_PATH_URL_FRONTEND;
