@@ -6,7 +6,6 @@ import {
   changeMessageInRoom,
   roomChangeLoading,
   roomsChangePage,
-  roomsChangeSocketConnect,
   roomsDataSlice,
   roomsErrorSlice,
   roomsLoadingSlice,
@@ -23,31 +22,17 @@ import { useAuthStore } from "hooks/store/useAuthStore";
 import { getSessionItem } from "lib/services/services";
 
 export const useSocketInit = () => {
-  const {
-    page,
-    hasError,
-    isLoading,
-    isEnd,
-    rooms,
-    isSocketConnect,
-    pageLimit,
-  } = useRoomsStore();
-
+  const dispatch = useAppDispatch();
   const { isAuth } = useAuthStore();
+  const { page, hasError, isLoading, isEnd, rooms, pageLimit } =
+    useRoomsStore();
 
   const [socketState, setSocketState] = useState<SocketType>(null);
-  const dispatch = useAppDispatch();
 
   const handleGetRooms = (socket = socketState) => {
     //! socket loading and loading more chat rooms
     if (socket && socket.connected && !isEnd) {
       dispatch(roomsChangePage());
-      return;
-    }
-    //! socket end loading when all chat rooms loaded
-    if (socket && socket.connected && isEnd) {
-      dispatch(roomChangeLoading(false));
-      return;
     }
   };
 
@@ -59,16 +44,12 @@ export const useSocketInit = () => {
     return (error: string) => {
       if (socket) {
         dispatch(roomsErrorSlice(error));
-        dispatch(roomsChangeSocketConnect(false));
         socket.disconnect();
       }
     };
   };
 
   useEffect(() => {
-    //! check socket connect
-    if (isSocketConnect) return;
-
     const socket = io(BASE_URL as string, {
       path: PATH_URL,
       query: {
@@ -85,7 +66,6 @@ export const useSocketInit = () => {
       //! connect room
       socket.emit("admin connect all rooms");
       dispatch(roomsLoadingSlice());
-      dispatch(roomsChangeSocketConnect(true));
     });
 
     //! error connect
@@ -115,16 +95,10 @@ export const useSocketInit = () => {
       handleError(socket)(error);
     });
 
-    const handleChangeVisibility = () => {
-      if (!document.hidden) {
-        socket.emit("admin leave all room");
-      }
-    };
-
-    //! visibility api
-    document.addEventListener("visibilitychange", handleChangeVisibility);
     return () => {
-      document.removeEventListener("visibilitychange", handleChangeVisibility);
+      if (socketState) {
+        socket.disconnect();
+      }
     };
   }, []);
 
@@ -151,10 +125,10 @@ export const useSocketInit = () => {
   //! pagination loading
   //? учтен нестабильный интернет
   useEffect(() => {
-    if (socketState && page && isLoading && isSocketConnect) {
+    if (socketState && socketState.connected && page && isLoading) {
       socketState.emit("pagination rooms", { page, pageLimit });
     }
-  }, [socketState?.connected, page, isLoading, isSocketConnect]);
+  }, [socketState, page, isLoading]);
 
   return {
     rooms,

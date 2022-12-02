@@ -13,7 +13,6 @@ interface IInitialState extends IStatusModel {
   page: number;
   pageLimit: number;
   isEnd: boolean;
-  isSocketConnect: boolean;
 }
 
 const initialState: IInitialState = {
@@ -23,7 +22,6 @@ const initialState: IInitialState = {
   page: 0,
   pageLimit,
   isEnd: false,
-  isSocketConnect: false,
 };
 
 export const roomsSlice = createSlice({
@@ -36,9 +34,6 @@ export const roomsSlice = createSlice({
     roomsChangePage(state) {
       state.page += 1;
       state.isLoading = true;
-    },
-    roomsChangeSocketConnect(state, action: PayloadAction<boolean>) {
-      state.isSocketConnect = action.payload;
     },
     roomsLoadingSlice(state) {
       state.isLoading = true;
@@ -127,7 +122,6 @@ export const {
   roomChangeLoading,
   changeMessageInRoom,
   roomsChangeStatusRoom,
-  roomsChangeSocketConnect,
   roomsAddChatInRooms,
 } = roomsSlice.actions;
 
