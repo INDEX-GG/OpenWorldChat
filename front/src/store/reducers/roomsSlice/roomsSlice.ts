@@ -6,7 +6,7 @@ import { IStatusModel } from "lib/models/IStatusModel";
 import { getUniqueRooms, roomsCopyArr } from "lib/services/services";
 import { IS_DEV } from "lib/constants/constants";
 
-const pageLimit = IS_DEV ? 10 : 50;
+const pageLimit = IS_DEV ? 1 : 50;
 
 interface IInitialState extends IStatusModel {
   rooms: string[];

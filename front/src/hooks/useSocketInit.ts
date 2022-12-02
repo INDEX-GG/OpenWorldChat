@@ -111,7 +111,9 @@ export const useSocketInit = () => {
     });
 
     //! error
-    socket.on("error", handleError);
+    socket.on("error", (error) => {
+      handleError(socket)(error);
+    });
 
     const handleChangeVisibility = () => {
       if (!document.hidden) {

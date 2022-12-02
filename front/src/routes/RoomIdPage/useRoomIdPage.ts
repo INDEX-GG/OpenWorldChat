@@ -98,7 +98,9 @@ export const useRoomIdPage = () => {
       });
 
       //! error
-      socket.on("error", handleError);
+      socket.on("error", (error: string) => {
+        handleError(socket, error);
+      });
 
       //! new message from user
       socket.on("message save", (message: IMessageModel) => {
