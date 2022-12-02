@@ -257,7 +257,7 @@ export const getAllRooms = async (
         const allRooms = await Room.findAndCountAll({
             offset: (page - 1) * pageLimit, 
             limit: pageLimit, 
-            include: [{model: Message, limit: 0}, {model: User}],
+            include: [{model: Message, separate: true, limit: 1, order: [["id", "desc"]]}, {model: User}],
         })
         
         io.in(ADMIN_ALL_ROOM_NAME).emit("admin get all rooms", allRooms.rows)

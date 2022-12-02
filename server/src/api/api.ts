@@ -1,8 +1,10 @@
+import { IUserModel } from './../types/IUserModel';
 import { Room, Message, User } from './../models/ModelsChat';
 import { SECRET_KEY } from './../constants/constants';
 import { Request, Response } from 'express';
 import * as CryptoJS from "crypto-js"
 import {confirmAdminSession} from '../services/services';
+import {UserChangeType} from '../types/types';
 
 export const decryptedData = (data: string) => CryptoJS.AES.decrypt(data, SECRET_KEY as string).toString(CryptoJS.enc.Utf8);
 
@@ -74,4 +76,24 @@ export const apiAdminAuth = async (req: Request, res: Response) => {
       }
 
     } catch {}
+  }
+
+  export const apiUserChange = async (req: Request, res: Response) => {
+    const api = apiResponse(res);
+    try {
+      const { id, ...otherUserInfo } = req.body as unknown as UserChangeType;
+      console.log(req.body)
+
+      const findUser = await User.findOne({where: {id}})
+
+      if (findUser && typeof otherUserInfo === "object") {
+        await findUser.update(otherUserInfo, {where: {id}})
+        await findUser.save();
+        api(200, {msg: "success"})
+      } else {
+        api(404, {msg: "User not found"})
+      }
+    } catch(e) {
+      console.log(e);
+    };
   }

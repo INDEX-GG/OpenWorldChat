@@ -1,3 +1,5 @@
+import { IUserModel } from "./IUserModel";
+
 export type RoomConnectType = {
     role: "user" | "admin",
     userId: number,
@@ -23,3 +25,5 @@ export type AdminNewMessageType = {
     message: string
     servicesId: number,
 }
+
+export type UserChangeType = Pick<IUserModel, "id"> & Partial<Pick<IUserModel,  "name" | "lastname" | "patronymic" | "phone">>
