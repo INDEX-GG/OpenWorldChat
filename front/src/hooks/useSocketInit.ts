@@ -14,7 +14,7 @@ import {
   ADMIN_ALL_ROOM_NAME,
   ADMIN_ID,
   BASE_URL,
-  PATH_URL,
+  SOCKET_PATH_URL,
 } from "lib/constants/constants";
 import { SessionStorageEnum, SocketType } from "types/types";
 import { IRoomModel } from "lib/models/IRoomModel";
@@ -51,7 +51,7 @@ export const useSocketInit = () => {
 
   useEffect(() => {
     const socket = io(BASE_URL as string, {
-      path: PATH_URL,
+      path: SOCKET_PATH_URL,
       query: {
         role: "admin",
         userId: ADMIN_ID,

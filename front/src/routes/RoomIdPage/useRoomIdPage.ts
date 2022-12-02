@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ADMIN_ID, BASE_URL, PATH_URL } from "lib/constants/constants";
+import { ADMIN_ID, BASE_URL, SOCKET_PATH_URL } from "lib/constants/constants";
 import { useChatStore } from "hooks/store/useChatStore";
 import { useParams } from "react-router-dom";
 import { useAppDispatch } from "hooks/store/useStore";
@@ -68,7 +68,7 @@ export const useRoomIdPage = () => {
   useEffect(() => {
     if (isConnectSocket && room) {
       const socket = io(BASE_URL as string, {
-        path: PATH_URL,
+        path: SOCKET_PATH_URL,
         query: {
           role: "admin",
           userId: ADMIN_ID,
