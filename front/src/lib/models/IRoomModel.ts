@@ -6,6 +6,7 @@ export interface IRoomModel {
   adminId: number;
   servicesId: number;
   servicesName: string;
+  lastMessageID: number;
   updatedAt: string;
   createdAt: string;
   userId: string;
