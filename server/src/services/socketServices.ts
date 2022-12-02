@@ -112,12 +112,14 @@ export const socketConnection = (io: Server) => {
                     //? ADMIN - ALL ROOM
                     //! admin connect all rooms
                     socket.on("admin connect all rooms", () => {
+                        console.log(roomName, "admin connect all rooms");
                         socket.join(roomName)
                     })
 
                     //! admin leave all room
                     socket.on("admin leave all room", () => {
                         //! re-open browser tab
+                        console.log(roomName, "admin connect all rooms");
                         socket.leave(roomName);
                         socket.join(roomName)
                     })
