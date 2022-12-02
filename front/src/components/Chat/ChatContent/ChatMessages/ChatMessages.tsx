@@ -1,14 +1,14 @@
 import React from "react";
 import { useChatMessages } from "components/Chat/ChatContent/ChatMessages/useChatMessages";
 import ChatList from "components/Chat/ChatContent/ChatMessages/ChatList/ChatList";
-import { messagesMock } from "lib/mock/messagesMock";
 import { useChatMessagesStyles } from "components/Chat/ChatContent/ChatMessages/styles";
+import { IRoomModel } from "lib/models/IRoomModel";
 
-const ChatMessages = () => {
-  const { containerRef } = useChatMessages();
+const ChatMessages = ({ messages }: Pick<IRoomModel, "messages">) => {
+  const { containerRef } = useChatMessages(messages);
   return (
     <MainSC ref={containerRef}>
-      <ChatList messagesData={messagesMock} />
+      <ChatList messages={messages} />
     </MainSC>
   );
 };

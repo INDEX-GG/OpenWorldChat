@@ -27,11 +27,24 @@ const HeaderTextSC = styled("div")`
   justify-content: space-between;
 `;
 
+const TitleContainerSC = styled("div")`
+  display: flex;
+  align-items: center;
+  margin-bottom: 7px;
+`;
+
+const NewMessageSC = styled("div")`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #2892ce;
+  margin-left: 5px;
+`;
+
 const TitleSC = styled("h4")`
   color: #161616;
   font-weight: 600;
   font-size: 16px;
-  margin-bottom: 7px;
   line-height: 20px;
   overflow: hidden;
   white-space: nowrap;
@@ -62,4 +75,6 @@ export const useRoomsItemStyles = () => ({
   TitleSC,
   MessageSC,
   DateSC,
+  NewMessageSC,
+  TitleContainerSC,
 });

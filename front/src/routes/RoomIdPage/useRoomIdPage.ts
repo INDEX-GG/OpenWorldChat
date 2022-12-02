@@ -1,57 +1,124 @@
-import { io } from "socket.io-client";
-import { useAppDispatch } from "hooks/store/useStore";
-import { chatConnect } from "store/reducers/chatSlice/chatSlice";
+import { useEffect, useState } from "react";
+import { ADMIN_ID, BASE_URL, PATH_URL } from "lib/constants/constants";
+import { useChatStore } from "hooks/store/useChatStore";
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
-import { IStatusModel } from "lib/models/IStatusModel";
-import { BASE_URL, PATH_URL } from "lib/constants/constants";
+import { useAppDispatch } from "hooks/store/useStore";
+import {
+  roomsAddChatInRooms,
+  roomsChangeStatusRoom,
+} from "store/reducers/roomsSlice/roomsSlice";
+import { io } from "socket.io-client";
+import { getSessionItem } from "lib/services/services";
+import { SessionStorageEnum, SocketType } from "types/types";
+import { IMessageModel } from "lib/models/IMessageModel";
 
 export const useRoomIdPage = () => {
-  const { roomId } = useParams();
+  const params = useParams();
   const dispatch = useAppDispatch();
+  const [socketState, setSocketState] = useState<SocketType>(null);
+  const [isConnectSocket, setIsConnectSocket] = useState<boolean>(false);
 
-  console.log(BASE_URL);
-  const socket = io(BASE_URL as string, {
-    path: PATH_URL,
-    query: {
-      roomId,
-      role: "admin",
-      authToken: "123",
-    },
-  });
+  const {
+    room,
+    isLoading,
+    hasError,
+    handleResetChat,
+    handleAddNewMessage,
+    handleChangeStatusChat,
+    handleGetCurrentChatInfo,
+  } = useChatStore();
 
-  const handleChangeChatConnect = (data: IStatusModel) => {
-    dispatch(chatConnect(data));
+  const handleError = (socket = socketState, message: string) => {
+    if (socket) {
+      socket.disconnect();
+      setIsConnectSocket(false);
+      handleResetChat();
+      handleChangeStatusChat({ isLoading: false, hasError: message });
+    }
   };
 
-  //! socket connect
-  socket.on("connect", () => {
-    setTimeout(
-      () => handleChangeChatConnect({ isLoading: false, hasError: "" }),
-      200,
-    );
-  });
-
-  //! connect error
-  socket.on("connect_error", () => {
-    handleChangeChatConnect({
-      isLoading: false,
-      hasError: "Ошибка подключения к комнате",
-    });
-  });
-
-  //! disconnect
+  //! Main Logic - 1
+  //? get room data in db and verify admin
   useEffect(() => {
+    if (params) {
+      const { roomId } = params;
+      if (roomId && ADMIN_ID) {
+        handleGetCurrentChatInfo({ roomId: +roomId });
+      }
+    }
     return () => {
-      socket.disconnect();
-      handleChangeChatConnect({
-        isLoading: true,
-        hasError: "",
-      });
+      setSocketState(null);
+      setIsConnectSocket(false);
+      handleResetChat();
     };
-  }, [roomId]);
+  }, [params]);
+
+  //! Main Logic - 2
+  //? change store and ready connect to socket
+  useEffect(() => {
+    if (isLoading && !hasError && room && room.id) {
+      dispatch(roomsAddChatInRooms([room]));
+      dispatch(roomsChangeStatusRoom(room.id));
+      setIsConnectSocket(true);
+    }
+  }, [isLoading, hasError, room]);
+
+  //! Main Logic - 3
+  //? connect socket
+  useEffect(() => {
+    if (isConnectSocket && room) {
+      const socket = io(BASE_URL as string, {
+        path: PATH_URL,
+        query: {
+          role: "admin",
+          userId: ADMIN_ID,
+          customRoomName: `room:admin/${room.id}`,
+          email: getSessionItem(SessionStorageEnum.EMAIL),
+          password: getSessionItem(SessionStorageEnum.PASSWORD),
+        },
+      });
+
+      //! connect
+      socket.on("connect", () => {
+        socket.emit("admin connect current rooms");
+      });
+
+      //! error connect
+      socket.on("connect_error", () => {
+        handleError(
+          socket,
+          "Ошибка подключения пожалуйста попробуйте подключиться позже",
+        );
+      });
+
+      //! admin verify
+      socket.on("admin confirm", () => {
+        setSocketState(socket);
+        handleChangeStatusChat({ isLoading: false, hasError: "" });
+      });
+
+      //! error
+      socket.on("error", (error: string) => {
+        handleError(socket, error);
+      });
+
+      //! new message from user
+      socket.on("message save", (message: IMessageModel) => {
+        handleAddNewMessage(message);
+      });
+
+      //! success save new message admin
+      socket.on("admin message save", (message: IMessageModel) => {
+        handleAddNewMessage(message);
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [isConnectSocket]);
 
   return {
-    socket,
+    socketState,
   };
 };

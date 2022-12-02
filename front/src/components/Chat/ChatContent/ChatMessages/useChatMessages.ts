@@ -1,16 +1,13 @@
 import { useEffect, useRef } from "react";
+import { IMessageModel } from "lib/models/IMessageModel";
 
-export const useChatMessages = () => {
+export const useChatMessages = (messages: IMessageModel[]) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const containerDom = containerRef.current;
-    if (containerDom) {
-      setTimeout(() => {
-        containerDom.scrollTop = containerDom.scrollHeight;
-      }, 50);
-    }
-  }, []);
+    const containerDom = containerRef.current as HTMLDivElement;
+    containerDom.scrollTop = containerDom.scrollHeight;
+  }, [messages]);
 
   return {
     containerRef,

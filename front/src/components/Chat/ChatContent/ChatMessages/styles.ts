@@ -7,6 +7,10 @@ const MainSC = styled("main")`
   overflow-y: scroll;
   display: flex;
   flex-direction: column;
+  position: relative;
+  & > *:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 export const useChatMessagesStyles = () => ({

@@ -1,14 +1,23 @@
-// import { IUserModel } from "lib/models/IUserModel";
-
-// export interface IRoomModel.ts {
-//   name: string;
-//   host: number;
-//   current_user: IUserModel;
-// }
+import { IUserModel } from "lib/models/IUserModel";
+import { IMessageModel } from "lib/models/IMessageModel";
 
 export interface IRoomModel {
   id: number;
-  title: string;
-  message: string;
-  date: string;
+  adminId: number;
+  servicesId: number;
+  servicesName: string;
+  lastMessageID: number;
+  updatedAt: string;
+  createdAt: string;
+  userId: string;
+  messages: IMessageModel[];
+  user: IUserModel;
+}
+
+export interface IStatus {
+  status: number;
+}
+
+export interface IChatRoom extends IStatus {
+  room: IRoomModel;
 }
