@@ -6,7 +6,7 @@ import { IStatusModel } from "lib/models/IStatusModel";
 import { getUniqueRooms, roomsCopyArr } from "lib/services/services";
 import { IS_DEV } from "lib/constants/constants";
 
-const pageLimit = IS_DEV ? 1 : 50;
+const pageLimit = IS_DEV ? 10 : 50;
 
 interface IInitialState extends IStatusModel {
   rooms: string[];
@@ -68,6 +68,7 @@ export const roomsSlice = createSlice({
       state.rooms = getUniqueRooms(roomsCopyArr(state.rooms), action.payload);
     },
     roomsDataSlice(state, action: PayloadAction<IRoomModel[]>) {
+      console.log(action.payload);
       state.rooms = getUniqueRooms(roomsCopyArr(state.rooms), action.payload);
       state.isLoading = false;
       state.hasError = "";
