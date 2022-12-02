@@ -15,7 +15,6 @@ export const socketConnection = (io: Server) => {
 
         //? handle error emit
         const errorEmit: ErrorEmitFuncType = (msg: string) => {
-            console.log(roomName, msg);
             io.in(roomName).emit("error", msg)
             socket.leave(roomName);
             socket.disconnect();
@@ -23,6 +22,8 @@ export const socketConnection = (io: Server) => {
 
         //! MAIN LOGIC
         try {
+
+            console.log("-------restart--------")
 
             //! forced disconnect
             if (!userId || !role) {
@@ -112,16 +113,8 @@ export const socketConnection = (io: Server) => {
                     //? ADMIN - ALL ROOM
                     //! admin connect all rooms
                     socket.on("admin connect all rooms", () => {
-                        console.log(roomName, "admin connect all rooms");
                         socket.join(roomName)
-                    })
-
-                    //! admin leave all room
-                    socket.on("admin leave all room", () => {
-                        //! re-open browser tab
-                        console.log(roomName, "admin connect all rooms");
-                        socket.leave(roomName);
-                        socket.join(roomName)
+                        console.log(`${role} connect ${roomName}`);
                     })
                     //? ADMIN - ALL ROOM
                     
@@ -130,6 +123,7 @@ export const socketConnection = (io: Server) => {
                     //! admin connect to current room
                     socket.on("admin connect current rooms", () => {
                         socket.join(roomName)
+                        console.log(`${role} connect ${roomName}`);
                     })
                     //? ADMIN - CURRENT ROOM
 
@@ -142,7 +136,7 @@ export const socketConnection = (io: Server) => {
 
                     //! check auth admin
                     const isConfirm = await confirmAdminSession(email, password);
-                    
+
 
                     //! error auth admin 
                     if (!isConfirm) {
@@ -151,6 +145,7 @@ export const socketConnection = (io: Server) => {
                     }
 
                     if (isConfirm) {
+                        console.log("emit frontend");
                         io.to(roomName).emit("admin confirm")
                     }
 
@@ -170,7 +165,7 @@ export const socketConnection = (io: Server) => {
             
             //! disconnect room
             socket.on("disconnect", () => {
-                console.log(`${role} disconnected`);
+                console.log(`${role} disconnect ${roomName}`);
                 errorEmit(errorMsg.leave)
             });
 
