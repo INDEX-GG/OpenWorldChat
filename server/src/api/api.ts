@@ -82,7 +82,6 @@ export const apiAdminAuth = async (req: Request, res: Response) => {
     const api = apiResponse(res);
     try {
       const { id, ...otherUserInfo } = req.body as unknown as UserChangeType;
-      console.log(req.body)
 
       const findUser = await User.findOne({where: {id}})
 

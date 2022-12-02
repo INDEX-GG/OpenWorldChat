@@ -135,6 +135,12 @@ const updateRoomInAllRooms = async (io: Server, roomId: number) => {
     io.in(ADMIN_ALL_ROOM_NAME).emit("message get admin", room);
 }
 
+const updateRoomLastMessageID = async (roomId: number, lastMessageID: number) => {
+    const updateRoom = await Room.findOne({where: {id: roomId}});
+    await updateRoom?.update({lastMessageID: lastMessageID});
+    await updateRoom?.save();
+}
+
 const createMessage = async (
     io: Server, 
     errorEmit: ErrorEmitFuncType,
@@ -149,6 +155,8 @@ const createMessage = async (
             senderId: messageInfo.userInfo.id,
         })
         await message.save();
+        await updateRoomLastMessageID(roomInfo.id, message.dataValues.id);
+
 
         //! emit frontend user chat (mobile) and admin chat (web)
         io.to(roomName)
@@ -178,6 +186,7 @@ export const getSendMessageAdmin = (
             })
 
             newMessage.save();
+            await updateRoomLastMessageID(data.roomId, newMessage.dataValues.id);
 
             //! emit frontend and mobile
             io.to(getAdminCurrentRoomName(data.roomId))
@@ -257,11 +266,16 @@ export const getAllRooms = async (
         const allRooms = await Room.findAndCountAll({
             offset: (page - 1) * pageLimit, 
             limit: pageLimit, 
-            include: [{model: Message, separate: true, limit: 1, order: [["id", "desc"]]}, {model: User}],
+            include: [
+                {model: Message, separate: true, limit: 1, order: [["id", "desc"]]}, 
+                {model: User}
+            ], 
+            order: [["lastMessageID", "DESC"]]   
         })
         
         io.in(ADMIN_ALL_ROOM_NAME).emit("admin get all rooms", allRooms.rows)
     } catch(e) {
+        console.log(e);
         errorEmit(errorMsg.rooms)
     }
 }
