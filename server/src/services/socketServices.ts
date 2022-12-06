@@ -15,6 +15,7 @@ export const socketConnection = (io: Server) => {
 
         //? handle error emit
         const errorEmit: ErrorEmitFuncType = (msg: string) => {
+            console.log(`user ${userId} - ${role} error: ${msg}`)
             io.in(roomName).emit("error", msg)
             socket.leave(roomName);
             socket.disconnect();
@@ -23,7 +24,7 @@ export const socketConnection = (io: Server) => {
         //! MAIN LOGIC
         try {
 
-            console.log("-------restart--------")
+            console.log("------- new socket connection --------")
 
             //! forced disconnect
             if (!userId || !role) {
@@ -64,11 +65,13 @@ export const socketConnection = (io: Server) => {
 
                     //! user not verify
                     if (!isVerify) {
+                        console.log("user not verify")
                         errorEmit(errorMsg.auth)
                         return;
                     }
 
                     //! user verify
+                    console.log("user verify")
                     io.in(roomName).emit("user verify")
 
                     //! find all rooms
@@ -76,6 +79,7 @@ export const socketConnection = (io: Server) => {
 
                     //! error find room in db
                     if (typeof room === "undefined") {
+                        console.log("room is find error")
                         errorEmit(errorMsg.room)
                         return;
                     };
@@ -83,12 +87,14 @@ export const socketConnection = (io: Server) => {
 
                     //! room is find
                     if (room?.id) {
+                        console.log("room is find")
                         roomId = room.id;
                         isCreateRoom = false;
                     }
 
                     //! create new room
                     if (room === true) {
+                        console.log("room is find, create")
                         io.in(roomName).emit("new room");
                     }
 

@@ -159,6 +159,7 @@ const createMessage = async (
 
 
         //! emit frontend user chat (mobile) and admin chat (web)
+        console.log(`${message.dataValues} to ${roomName}`)
         io.to(roomName)
           .to(getAdminCurrentRoomName(roomInfo.id))
           .emit("message save", message.dataValues);
