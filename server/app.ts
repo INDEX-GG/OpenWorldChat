@@ -26,6 +26,7 @@ const server = require("http").Server(app);
 
 //? socket.io
 const io = require("socket.io")(server, {
+  path: "/openworld-chat-b",
   cors: {
     origin: CORS,
   }
