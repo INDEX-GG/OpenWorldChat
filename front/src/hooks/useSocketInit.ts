@@ -4,7 +4,6 @@ import { io } from "socket.io-client";
 import { useAppDispatch } from "hooks/store/useStore";
 import {
   changeMessageInRoom,
-  roomChangeLoading,
   roomsChangePage,
   roomsDataSlice,
   roomsErrorSlice,
@@ -52,6 +51,7 @@ export const useSocketInit = () => {
   useEffect(() => {
     const socket = io(BASE_URL as string, {
       path: SOCKET_PATH_URL,
+      transports: ["websocket"],
       query: {
         role: "admin",
         userId: ADMIN_ID,

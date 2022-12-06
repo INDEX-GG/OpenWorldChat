@@ -69,6 +69,7 @@ export const useRoomIdPage = () => {
     if (isConnectSocket && room) {
       const socket = io(BASE_URL as string, {
         path: SOCKET_PATH_URL,
+        transports: ["websocket"],
         query: {
           role: "admin",
           userId: ADMIN_ID,

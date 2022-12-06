@@ -4,7 +4,7 @@ import { RootState } from "store/store";
 import { RootReducerNameSpace } from "store/rootReducer";
 import { IStatusModel } from "lib/models/IStatusModel";
 import { getUniqueRooms, roomsCopyArr } from "lib/services/services";
-import { IS_DEV } from "lib/constants/constants";
+import { ADMIN_ID, IS_DEV } from "lib/constants/constants";
 
 const pageLimit = IS_DEV ? 1 : 50;
 
@@ -85,7 +85,8 @@ export const roomsSlice = createSlice({
 
         //! current room /:id
         const isCurrentRoom =
-          action.payload.id === +(window.location.pathname[1] || 0);
+          action.payload.id ===
+          +(window.location.pathname.split("/").at(-1) || 0);
 
         //! status: 1 (без подсветки сообщения)
         //! status: 2 (с подсветкой сообщения)
