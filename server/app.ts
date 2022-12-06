@@ -22,10 +22,10 @@ app.use(express.json())
 
 
 //? server
-const server = http.createServer(app);
+const server = require("http").Server(app);
 
 //? socket.io
-const io = new Server(server, {
+const io = require("socket.io")(server, {
   cors: {
     origin: CORS,
   }
