@@ -21,6 +21,14 @@ export const socketConnection = (io: Server) => {
             socket.disconnect();
         }
 
+                //? USER - CURRENT ROOM
+        //! connect room user
+        socket.on("user connect room", () => {
+            console.log("user join room");
+            socket.join(roomName)
+        })
+        //? USER - CURRENT ROOM
+
         //! MAIN LOGIC
         try {
 
@@ -43,15 +51,6 @@ export const socketConnection = (io: Server) => {
                     //? query body
                     const { authToken, servicesId, services_name} = querySocket as unknown as RoomConnectType;
                     console.log(`${role}: ${userId} connected to room ${servicesId}`)
-
-
-                    //? USER - CURRENT ROOM
-                    //! connect room user
-                    socket.on("user connect room", () => {
-                        console.log("user join room");
-                        socket.join(roomName)
-                    })
-                    //? USER - CURRENT ROOM
 
 
                     //! forced disconnect
