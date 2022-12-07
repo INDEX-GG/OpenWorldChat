@@ -21,14 +21,6 @@ export const socketConnection = (io: Server) => {
             socket.disconnect();
         }
 
-                //? USER - CURRENT ROOM
-        //! connect room user
-        socket.on("user connect room", () => {
-            console.log("user join room");
-            socket.join(roomName)
-        })
-        //? USER - CURRENT ROOM
-
         //! MAIN LOGIC
         try {
 
@@ -50,65 +42,72 @@ export const socketConnection = (io: Server) => {
                     
                     //? query body
                     const { authToken, servicesId, services_name} = querySocket as unknown as RoomConnectType;
-                    console.log(`${role}: ${userId} connected to room ${servicesId}`)
 
 
-                    //! forced disconnect
-                    if (!userId || !authToken || !role || !servicesId || !services_name) {
-                        errorEmit(errorMsg.error)
-                        return;
-                    }
+                    //? USER - CURRENT ROOM
+                    socket.on("user connect room", async () => {
+                        //! connect room user
+                        await socket.join(roomName)
+                        console.log(`${role}: ${userId} connected to room ${servicesId}`)
 
-                    //! check verify
-                    const isVerify = await checkUserAuth(authToken);
+                        //! forced disconnect
+                        if (!userId || !authToken || !role || !servicesId || !services_name) {
+                            errorEmit(errorMsg.error)
+                            return;
+                        }
 
-                    //! user not verify
-                    if (!isVerify) {
-                        console.log("user not verify")
-                        errorEmit(errorMsg.auth)
-                        return;
-                    }
+                        //! check verify
+                        const isVerify = await checkUserAuth(authToken);
 
-                    //! user verify
-                    console.log("user verify")
-                    io.in(roomName).emit("user verify")
+                        //! user not verify
+                        if (!isVerify) {
+                            console.log("user not verify")
+                            errorEmit(errorMsg.auth)
+                            return;
+                        }
 
-                    //! find all rooms
-                    const room = await findRooms(io, userId, servicesId, roomName, errorEmit)
+                        //! user verify
+                        console.log("user verify")
+                        io.in(roomName).emit("user verify")
 
-                    //! error find room in db
-                    if (typeof room === "undefined") {
-                        console.log("room is find error")
-                        errorEmit(errorMsg.room)
-                        return;
-                    };
+                        //! find all rooms
+                        const room = await findRooms(io, userId, servicesId, roomName, errorEmit)
+
+                        //! error find room in db
+                        if (typeof room === "undefined") {
+                            console.log("room is find error")
+                            errorEmit(errorMsg.room)
+                            return;
+                        };
 
 
-                    //! room is find
-                    if (room?.id) {
-                        console.log("room is find")
-                        roomId = room.id;
-                        isCreateRoom = false;
-                    }
+                        //! room is find
+                        if (room?.id) {
+                            console.log("room is find")
+                            roomId = room.id;
+                            isCreateRoom = false;
+                        }
 
-                    //! create new room
-                    if (room === true) {
-                        console.log("room is find, create")
-                        io.in(roomName).emit("new room");
-                    }
+                        //! create new room
+                        if (room === true) {
+                            console.log("room is find, create")
+                            io.in(roomName).emit("new room");
+                        }
 
-                    //! send message
-                    socket.on(
-                        "send message", 
-                        getSendMessage(
-                            io, 
-                            errorEmit, 
-                            isCreateRoom, 
-                            querySocket as any, 
-                            roomName, 
-                            room
+                        //! send message
+                        socket.on(
+                            "send message", 
+                            getSendMessage(
+                                io, 
+                                errorEmit, 
+                                isCreateRoom, 
+                                querySocket as any, 
+                                roomName, 
+                                room
+                            )
                         )
-                    )
+                     })
+                    //? USER - CURRENT ROOM
                 }
 
                 //* ADMIN
