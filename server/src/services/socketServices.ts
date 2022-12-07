@@ -67,7 +67,6 @@ export const socketConnection = (io: Server) => {
                         }
 
                         //! user verify
-                        console.log("user verify")
                         io.in(roomName).emit("user verify")
 
                         //! find all rooms
@@ -75,7 +74,6 @@ export const socketConnection = (io: Server) => {
 
                         //! error find room in db
                         if (typeof room === "undefined") {
-                            console.log("room is find error")
                             errorEmit(errorMsg.room)
                             return;
                         };
@@ -83,14 +81,12 @@ export const socketConnection = (io: Server) => {
 
                         //! room is find
                         if (room?.id) {
-                            console.log("room is find")
                             roomId = room.id;
                             isCreateRoom = false;
                         }
 
                         //! create new room
                         if (room === true) {
-                            console.log("room is find, create")
                             io.in(roomName).emit("new room");
                         }
 
@@ -113,53 +109,56 @@ export const socketConnection = (io: Server) => {
                 //* ADMIN
                 if (role === "admin") {
 
-
-                    //? ADMIN - ALL ROOM
-                    //! admin connect all rooms
-                    socket.on("admin connect all rooms", () => {
-                        socket.join(roomName)
-                        console.log(`${role} connect ${roomName}`);
-                    })
-                    //? ADMIN - ALL ROOM
-                    
-
-                    //? ADMIN - CURRENT ROOM
-                    //! admin connect to current room
-                    socket.on("admin connect current rooms", () => {
-                        socket.join(roomName)
-                        console.log(`${role} connect ${roomName}`);
-                    })
-                    //? ADMIN - CURRENT ROOM
-
-
                     //! error body
                     if (!email || !password) {
                         errorEmit(errorMsg.error)
                         return;
                     }
 
-                    //! check auth admin
-                    const isConfirm = await confirmAdminSession(email, password);
+                    const handleLogicAdminConnect = async () => {
+                        //! check auth admin
+                        const isConfirm = await confirmAdminSession(email, password);
 
+                        //! error auth admin 
+                        if (!isConfirm) {
+                            errorEmit(errorMsg.auth);
+                            return false;
+                        }
 
-                    //! error auth admin 
-                    if (!isConfirm) {
-                        errorEmit(errorMsg.auth);
-                        return;
+                        if (isConfirm) {
+                            io.to(roomName).emit("admin confirm")
+                            return true;
+                        }
                     }
+                    
+                    //? ADMIN - ALL ROOM
+                    //! admin connect all rooms
+                    socket.on("admin connect all rooms", async () => {
+                        await socket.join(roomName)
+                        const isAdmin = await handleLogicAdminConnect();
 
-                    if (isConfirm) {
-                        console.log("emit frontend");
-                        io.to(roomName).emit("admin confirm")
-                    }
-
-                    //! all rooms
-                    socket.on("pagination rooms", ({page, pageLimit}: PaginationType) => {
-                        getAllRooms(io, errorEmit, page, pageLimit)
+                        if (isAdmin) {
+                            //! all rooms
+                            socket.on("pagination rooms", ({page, pageLimit}: PaginationType) => {
+                                getAllRooms(io, errorEmit, page, pageLimit)
+                            })
+                        }
                     })
+                    //? ADMIN - ALL ROOM
+                    
 
-                    //! admin send message
-                    socket.on("admin send message", getSendMessageAdmin(io, errorEmit))
+                    //? ADMIN - CURRENT ROOM
+                    //! admin connect to current room
+                    socket.on("admin connect current rooms", async () => {
+                        await socket.join(roomName)
+                        const isAdmin = await handleLogicAdminConnect();
+
+                        if (isAdmin) {
+                            //! admin send message
+                            socket.on("admin send message", getSendMessageAdmin(io, errorEmit))
+                        }
+                    })
+                    //? ADMIN - CURRENT ROOM
                 }
 
             } else {
