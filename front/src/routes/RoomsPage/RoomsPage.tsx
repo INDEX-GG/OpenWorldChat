@@ -6,7 +6,7 @@ const RoomsPage = () => {
   return (
     <RoomsLayout isOverflowScroll={false}>
       <ContainerSC>
-        <TitleSC>Чтобы отправить сообщение выберите диалог</TitleSC>
+        <TitleSC>Чтобы отправить сообщение, выберите диалог</TitleSC>
       </ContainerSC>
     </RoomsLayout>
   );
