@@ -4,10 +4,13 @@ import Chat from "components/Chat/Chat";
 import { useRoomIdPage } from "routes/RoomIdPage/useRoomIdPage";
 
 const RoomIdPage = () => {
-  useRoomIdPage();
+  //! socket state props drilling (x4)
+  //! Chat -> ChatContent -> ChatSend -> useChatSend
+  const { socketState } = useRoomIdPage();
+
   return (
     <RoomsLayout isOverflowScroll={true}>
-      <Chat />
+      <Chat socketState={socketState} />
     </RoomsLayout>
   );
 };

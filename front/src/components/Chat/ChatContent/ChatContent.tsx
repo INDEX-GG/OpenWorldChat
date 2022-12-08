@@ -3,13 +3,16 @@ import { styled } from "@mui/material";
 import ChatHeader from "components/Chat/ChatContent/ChatHeader/ChatHeader";
 import ChatMessages from "components/Chat/ChatContent/ChatMessages/ChatMessages";
 import ChatSend from "components/Chat/ChatContent/ChatSend/ChatSend";
+import { IChatContent } from "components/Chat/ChatContent/types";
 
-const ChatContent = () => {
+const ChatContent = ({ room, socketState }: IChatContent) => {
+  const { user, messages, servicesName } = room;
+
   return (
     <ContainerSC>
-      <ChatHeader />
-      <ChatMessages />
-      <ChatSend />
+      <ChatHeader user={user} servicesName={servicesName} />
+      <ChatMessages messages={messages} />
+      <ChatSend socketState={socketState} />
     </ContainerSC>
   );
 };

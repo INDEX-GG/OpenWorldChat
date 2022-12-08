@@ -13,6 +13,7 @@ const AsideSC = styled("aside")<Pick<IChatLayoutProps, "isOverflowScroll">>`
   width: 100%;
   height: 100%;
   max-width: 785px;
+  min-width: 200px;
   min-height: 100vh;
   max-height: ${({ isOverflowScroll }) =>
     isOverflowScroll ? "100vh" : "none"};

@@ -19,6 +19,7 @@ export const Room = sequelize.define("room", {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     servicesId: {type: DataTypes.INTEGER},
     servicesName: {type: DataTypes.STRING},
+    lastMessageID: {type: DataTypes.INTEGER},
 }, {tableName: "room"})
 
 export const Message = sequelize.define("message", {

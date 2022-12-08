@@ -5,17 +5,18 @@ import * as cors from "cors"
 import { Server } from "socket.io";
 import SequelizeChat from "./src/db/dbChat";
 import SequelizeMain from "./src/db/dbMain";
-import { PORT } from "./src/constants/constants";
+import { ALLOWED_HEADERS_CORS, CORS, PORT } from "./src/constants/constants";
 import { socketConnection } from "./src/services/socketServices";
-import {apiAdminAuth} from './src/api/api';
+import {apiAdminAuth, apiAdminChat, apiUserChange} from './src/api/api';
 
 //? app
 export const app = express();
 
 app.use(cors({
-  origin: "*",
-  allowedHeaders: "*",
+  origin: CORS,
+  allowedHeaders: ALLOWED_HEADERS_CORS,
 }))
+
 app.use(express.urlencoded())
 app.use(express.json())
 
@@ -25,13 +26,16 @@ const server = http.createServer(app);
 
 //? socket.io
 const io = new Server(server, {
+  transports: ["websocket"],
   cors: {
-    origin: "*",
+    origin: CORS,
   }
 })
 
 //! admin login
 app.post("/login", apiAdminAuth);
+app.patch("/update/user/:id", apiUserChange)
+app.post("/chat/:id", apiAdminChat);
 
 //! socket connect
 io.on("connection", socketConnection(io));

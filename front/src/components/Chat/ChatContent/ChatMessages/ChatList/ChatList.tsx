@@ -4,15 +4,19 @@ import ChatMessageDate from "components/Chat/ChatContent/ChatMessages/ChatMessag
 import ChatMessageItem from "components/Chat/ChatContent/ChatMessages/ChatMessageItem/ChatMessageItem";
 
 interface IChatListProps {
-  messagesData: IMessageModel[];
+  messages: IMessageModel[];
 }
 
-const ChatList = ({ messagesData }: IChatListProps) => {
+const ChatList = ({ messages }: IChatListProps) => {
   return (
     <>
-      {messagesData.map((messageItem) => (
+      {messages.map((messageItem, index) => (
         <>
-          <ChatMessageDate key={messageItem.id} />
+          <ChatMessageDate
+            key={messageItem.createdAt + index}
+            currentMessage={messageItem}
+            prevMessage={messages[index - 1]}
+          />
           <ChatMessageItem key={messageItem.id} {...messageItem} />
         </>
       ))}

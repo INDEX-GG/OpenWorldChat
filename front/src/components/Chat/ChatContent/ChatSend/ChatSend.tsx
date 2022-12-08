@@ -2,21 +2,29 @@ import React from "react";
 import { useStylesChatSend } from "components/Chat/ChatContent/ChatSend/styles";
 import SendIcon from "assets/icons/Send/SendIcon";
 import { useChatSend } from "components/Chat/ChatContent/ChatSend/useChatSend";
+import { ISocketProps } from "types/types";
 
-const ChatSend = () => {
-  const { value, handleChangeValue, onSubmit } = useChatSend();
+const ChatSend = ({ socketState }: ISocketProps) => {
+  const {
+    value,
+    isInputMaxLength,
+    handleChangeValue,
+    handleKeyDown,
+    handleDisableNativeForm,
+  } = useChatSend(socketState);
 
   return (
     <FooterSC>
-      <FormSC onSubmit={onSubmit}>
+      <FormSC onSubmit={handleDisableNativeForm}>
         <TextAreaContainerSC>
           <TextAreaSC
             multiline
             maxRows={5}
             fullWidth
             value={value}
+            onKeyDown={handleKeyDown}
             onChange={handleChangeValue}
-            error={value.length > 500}
+            error={isInputMaxLength}
             placeholder={"Написать сообщение..."}
           />
         </TextAreaContainerSC>

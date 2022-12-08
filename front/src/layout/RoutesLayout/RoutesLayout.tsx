@@ -3,15 +3,15 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { notAuthRoutes } from "routes/notAuthRoutes";
 import { useAuthStore } from "hooks/store/useAuthStore";
 import { authRoutes } from "routes/authRoutes";
+import { PATH_URL_FRONTEND } from "lib/constants/constants";
 
 const RoutesLayout = () => {
   const { isAuth } = useAuthStore();
   if (isAuth === null) {
     return null;
   }
-  const basename = document.querySelector("base")?.getAttribute("href") ?? "/";
   const router = createBrowserRouter(isAuth ? authRoutes : notAuthRoutes, {
-    basename: basename || "/",
+    basename: PATH_URL_FRONTEND as string,
   });
 
   return <RouterProvider router={router} />;
