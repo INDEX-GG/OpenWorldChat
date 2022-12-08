@@ -5,6 +5,8 @@ import { useAuthStore } from "hooks/store/useAuthStore";
 import { authRoutes } from "routes/authRoutes";
 import { PATH_URL_FRONTEND } from "lib/constants/constants";
 
+//! Routes
+
 const RoutesLayout = () => {
   const { isAuth } = useAuthStore();
   if (isAuth === null) {
