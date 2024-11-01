@@ -1,6 +1,7 @@
 import React from "react";
 import ButtonUI from "UI/ButtonUI/ButtonUI";
 import { styled } from "@mui/material";
+import { PATH_URL_FRONTEND } from "lib/constants/constants";
 
 const ErrorPage = () => {
   return (
@@ -9,7 +10,7 @@ const ErrorPage = () => {
         <TitleSC>404</TitleSC>
         <SubtitleSC>страница не найдена</SubtitleSC>
         <ButtonContainerSC>
-          <ButtonUI href="/">на главную</ButtonUI>
+          <ButtonUI href={PATH_URL_FRONTEND}>на главную</ButtonUI>
         </ButtonContainerSC>
       </WrapperSC>
     </ContainerSC>
