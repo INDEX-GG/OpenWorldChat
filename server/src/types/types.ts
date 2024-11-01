@@ -1,7 +1,7 @@
 import { IUserModel } from "./IUserModel";
 
 export type RoomConnectType = {
-    role: "user" | "admin",
+    role: "user_feedback_chat" | "admin_feedback_chat",
     userId: number,
     authToken?: string,
     servicesId?: number,

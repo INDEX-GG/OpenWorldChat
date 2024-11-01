@@ -3,7 +3,6 @@ import * as express from "express";
 import * as http from "http";
 import * as cors from "cors"
 import { Server } from "socket.io";
-import SequelizeChat from "./src/db/dbChat";
 import SequelizeMain from "./src/db/dbMain";
 import { ALLOWED_HEADERS_CORS, CORS, PORT } from "./src/constants/constants";
 import { socketConnection } from "./src/services/socketServices";
@@ -44,11 +43,9 @@ io.on("connection", socketConnection(io));
 const start = async () => {
   try {
     //? connect bd;
-    await SequelizeChat.authenticate();
     await SequelizeMain.authenticate();
 
     //? sync bd;
-    await SequelizeChat.sync();
     await SequelizeMain.sync();
 
     server.listen(PORT, () => {

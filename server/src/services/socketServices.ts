@@ -33,10 +33,10 @@ export const socketConnection = (io: Server) => {
             }
 
             //! check role
-            if (role === "admin" || role === "user") {
+            if (role === "admin_feedback_chat" || role === "user_feedback_chat") {
 
                 //* USER
-                if (role === "user") {
+                if (role === "user_feedback_chat") {
                     let isCreateRoom = true;
                     let roomId = undefined;
                     
@@ -107,7 +107,7 @@ export const socketConnection = (io: Server) => {
                 }
 
                 //* ADMIN
-                if (role === "admin") {
+                if (role === "admin_feedback_chat") {
 
                     //! error body
                     if (!email || !password) {
