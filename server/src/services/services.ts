@@ -6,16 +6,14 @@ import {User, Room, Message, Admin} from '../models/ModelsChat';
 import {ErrorEmitFuncType, RoomConnectType, AdminNewMessageType} from '../types/types';
 import { errorMsg } from "../constants/error";
 import {ADMIN_ALL_ROOM_NAME} from '../constants/constants';
-import * as bcrypt from 'bcrypt';
-import {decryptedData} from '../api/api';
 
 export const getUserRoomName = (userId: number, servicesId?: number) => `room:userId=${userId}/servicesId=${servicesId}`
 export const getAdminCurrentRoomName = (roomId: number) => `room:admin/${roomId}`;
 
 export const confirmAdminSession = async (email: string, password: string) => {
     try {
-        const admin = await Admin.findOne({where: {email: decryptedData(email)}})
-        return bcrypt.compare(decryptedData(password), admin?.dataValues.password)
+        const admin = await Admin.findOne({where: { email }})
+        return password === admin?.dataValues.password
     } catch(e) {
         return false
     }
@@ -60,7 +58,7 @@ export const findRooms = async (io: Server, userId: number, servicesId: number, 
                 console.log("create room");
                 return true;
             }
-            
+
             if (currentRoom) {
                 //! get message in room;
                 const messages = await Message.findAll({where: {roomId: currentRoom.id}})
@@ -82,11 +80,11 @@ export const findRooms = async (io: Server, userId: number, servicesId: number, 
 }
 
 const createRoom = async (
-    io: Server, 
-    querySocket: RoomConnectType, 
-    data: IMessageModel, 
+    io: Server,
+    querySocket: RoomConnectType,
+    data: IMessageModel,
     roomName: string,
-    errorEmit: ErrorEmitFuncType, 
+    errorEmit: ErrorEmitFuncType,
     tryCount = 0
 ) => {
     try {
@@ -142,9 +140,9 @@ const updateRoomLastMessageID = async (roomId: number, lastMessageID: number) =>
 }
 
 const createMessage = async (
-    io: Server, 
+    io: Server,
     errorEmit: ErrorEmitFuncType,
-    roomName: string, 
+    roomName: string,
     messageInfo: IMessageModel,
     roomInfo: IRoomModel,
 ) => {
@@ -166,7 +164,7 @@ const createMessage = async (
 
         //! update current room in all rooms socket (admin
         await updateRoomInAllRooms(io, roomInfo.id)
-        
+
         return true;
     } catch(e) {
         errorEmit(errorMsg.message);
@@ -175,8 +173,8 @@ const createMessage = async (
 }
 
 export const getSendMessageAdmin = (
-    io: Server, 
-    errorEmit: ErrorEmitFuncType, 
+    io: Server,
+    errorEmit: ErrorEmitFuncType,
 ) => {
     return async (data: AdminNewMessageType) => {
         try {
@@ -207,10 +205,10 @@ export const getSendMessageAdmin = (
 
 //? event send message
 export const getSendMessage = (
-    io: Server, 
-    errorEmit: ErrorEmitFuncType, 
-    isCreateRoom: boolean, 
-    querySocket: RoomConnectType, 
+    io: Server,
+    errorEmit: ErrorEmitFuncType,
+    isCreateRoom: boolean,
+    querySocket: RoomConnectType,
     roomName: string,
     roomInfo?: IRoomModel,
 ) => {
@@ -226,10 +224,10 @@ export const getSendMessage = (
                             isCreateRoom = false,
                             roomInfo = newRoom.dataValues;
                             createMessage(
-                                io, 
-                                errorEmit, 
-                                roomName, 
-                                {...message, roomId: newRoom.dataValues.id}, 
+                                io,
+                                errorEmit,
+                                roomName,
+                                {...message, roomId: newRoom.dataValues.id},
                                 newRoom as any,
                             );
                         }
@@ -238,10 +236,10 @@ export const getSendMessage = (
                     //! create message
                     if (roomInfo) {
                         createMessage(
-                            io, 
-                            errorEmit, 
-                            roomName, 
-                            {...message, roomId: roomInfo.id}, 
+                            io,
+                            errorEmit,
+                            roomName,
+                            {...message, roomId: roomInfo.id},
                             roomInfo,
                             );
                     } else {
@@ -258,22 +256,22 @@ export const getSendMessage = (
 }
 
 export const getAllRooms = async (
-    io: Server, 
-    errorEmit: ErrorEmitFuncType, 
+    io: Server,
+    errorEmit: ErrorEmitFuncType,
     page: number,
     pageLimit: number,
 ) => {
     try {
         const allRooms = await Room.findAndCountAll({
-            offset: (page - 1) * pageLimit, 
-            limit: pageLimit, 
+            offset: (page - 1) * pageLimit,
+            limit: pageLimit,
             include: [
-                {model: Message, separate: true, limit: 1, order: [["id", "desc"]]}, 
+                {model: Message, separate: true, limit: 1, order: [["id", "desc"]]},
                 {model: User}
-            ], 
-            order: [["lastMessageID", "DESC"]]   
+            ],
+            order: [["lastMessageID", "DESC"]]
         })
-        
+
         io.in(ADMIN_ALL_ROOM_NAME).emit("admin get all rooms", allRooms.rows)
     } catch(e) {
         console.log(e);

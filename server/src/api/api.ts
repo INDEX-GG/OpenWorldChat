@@ -1,12 +1,8 @@
-import { IUserModel } from './../types/IUserModel';
 import { Room, Message, User } from './../models/ModelsChat';
-import { SECRET_KEY } from './../constants/constants';
 import { Request, Response } from 'express';
-import * as CryptoJS from "crypto-js"
 import {confirmAdminSession} from '../services/services';
 import {UserChangeType} from '../types/types';
 
-export const decryptedData = (data: string) => CryptoJS.AES.decrypt(data, SECRET_KEY as string).toString(CryptoJS.enc.Utf8);
 
 const apiResponse = (res: Response) => {
     return (code: number, data: object) => {
