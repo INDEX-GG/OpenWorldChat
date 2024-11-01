@@ -2,10 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { IStore } from "store/store";
 import { ICallback } from "types/types";
 import { fetchCatchError } from "lib/fetch/fetch";
-import {
-  cryptoData,
-  saveAuthDataInSessionStorage,
-} from "lib/services/services";
+import { saveAuthDataInSessionStorage } from "lib/services/services";
 
 export type RequestAdminLoginDataType = {
   email: string;
@@ -22,17 +19,14 @@ export const fetchAdminLogin = createAsyncThunk<
   "authSlice/login",
   async ({ rejectCallback, ...sendData }, { extra: api, rejectWithValue }) => {
     try {
-      const cryptoEmail = cryptoData(sendData.email);
-      const cryptoPassword = cryptoData(sendData.password);
-
       const response = await api.post("/login/", {
-        email: cryptoEmail,
-        password: cryptoPassword,
+        email: sendData.email,
+        password: sendData.password,
       });
 
       switch (response.status) {
         case 200:
-          saveAuthDataInSessionStorage(cryptoEmail, cryptoPassword);
+          saveAuthDataInSessionStorage(sendData.email, sendData.password);
       }
 
       return response.data;
