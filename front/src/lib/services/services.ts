@@ -12,10 +12,7 @@ export const saveAuthDataInSessionStorage = (
 export const getAuthDataInSessionStorage = () => {
   try {
     const email = sessionStorage.getItem("@email") as string;
-    const password = 
-      sessionStorage.getItem("@password") as string,
-    ;
-
+    const password = sessionStorage.getItem("@password") as string;
     return {
       email,
       password,
